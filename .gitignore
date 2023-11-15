@@ -34,3 +34,9 @@
 # python
 venv/
 __pycache__
+
+# root
+**/*root
+
+# plots
+**/*png

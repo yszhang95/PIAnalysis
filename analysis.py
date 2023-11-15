@@ -11,7 +11,6 @@ import matplotlib
 from matplotlib import pyplot as plt
 import mplhep
 
-
 class HistFactory:
     """
     Histogram factory
@@ -190,7 +189,8 @@ class HistFactory:
                 (np.abs(filtered_analyzed["pos_x"]) < 10)
                 & (np.abs(filtered_analyzed["pos_y"]) < 10)
             )
-            filtered_analyzed = filtered_analyzed[ak.all(shoot_in_atar_updated, axis=1)]
+            filtered_analyzed = filtered_analyzed[
+                ak.all(shoot_in_atar_updated, axis=1)]
 
             # silicon bulk again
             silicon_bulk_mask_updated = np.logical_and(
@@ -204,7 +204,8 @@ class HistFactory:
                 & (filtered_analyzed["pos_KE"]<1E-6),
                 axis=1
             )
-            self.__h_stop_z.fill(stop_z_x=filtered_analyzed["pos_z"][ke_mask][:,-1])
+            self.__h_stop_z.fill(
+                stop_z_x=filtered_analyzed["pos_z"][ke_mask][:,-1])
 
             # dz > 0 + silicon bulk
             dz_mask = np.logical_and(
@@ -268,3 +269,15 @@ class HistFactory:
     #     """Process single event
     #     """
     #     return
+
+    def save_to_file(self):
+        """save to file
+        """
+        fout = uproot.recreate("output_hist.root")
+        fout["h_stop_z"] = self.__h_stop_z
+        fout["h_beam_ke"] = self.__h_beam_ke
+        fout["h_beam_mom"] = self.__h_beam_mom
+        fout["h_beam_phi"] = self.__h_beam_phi
+        fout["h_beam_theta"] = self.__h_beam_theta
+        fout["h_dedr_vs_z"] = self.__h_dedr_vs_z
+        fout["h_dedz_vs_z"] = self.__h_dedz_vs_z
