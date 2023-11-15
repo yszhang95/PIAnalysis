@@ -12,8 +12,6 @@ from matplotlib import pyplot as plt
 import mplhep
 
 
-
-
 class HistFactory:
     """
     Histogram factory
@@ -81,20 +79,29 @@ class HistFactory:
         """
         plot
         """
-        print(self.__h_dedr_vs_z)
         mplhep.style.use("CMS")
         self.__h_beam_mom.plot()
         self.__h_beam_ke.plot()
         self.__h_beam_phi.plot()
         self.__h_beam_theta.plot()
-        mplhep.histplot(self.__h_beam_theta)
+
+        fig_theta, ax_theta = plt.subplots()
+        mplhep.histplot(self.__h_beam_theta, ax=ax_theta)
         plt.savefig("beam_theta.png")
-        mplhep.hist2dplot(self.__h_dedr_vs_z,
+
+        fig_dedr_vs_z, ax_dedr_vs_z = plt.subplots()
+        mplhep.hist2dplot(self.__h_dedr_vs_z, ax=ax_dedr_vs_z,
                           norm=matplotlib.colors.LogNorm(vmin=0.1))
-        #self.__h_dedr_vs_z.plot()
         plt.savefig("dedr_vs_z.png")
-        self.__h_dedz_vs_z.plot()
-        self.__h_stop_z.plot()
+
+        fig_dedz_vs_z, ax_dedz_vs_z = plt.subplots()
+        mplhep.hist2dplot(self.__h_dedz_vs_z, ax=ax_dedz_vs_z,
+                          norm=matplotlib.colors.LogNorm(vmin=0.1))
+        plt.savefig("dedz_vs_z.png")
+
+        fig_stop_z, ax_stop_z = plt.subplots()
+        mplhep.histplot(self.__h_stop_z, ax=ax_stop_z)
+        plt.savefig("stop_z.png")
 
     def loop(self) -> None:
         """
@@ -111,7 +118,6 @@ class HistFactory:
             selected = batch[pdgid_mask]
             selected_pdgid = batch[pdgid_mask]['track.pdgid']
             # from here, I always assume one particle in one event
-            print(selected_pdgid[:, 0])
 
             # analyzed = nevent * [
             # nstep *
@@ -165,7 +171,7 @@ class HistFactory:
             analyzed = ak.Array(steps)
 
             # fill incident angle
-            self.__h_beam_theta.fill(analyzed["theta"])
+            self.__h_beam_theta.fill(beam_theta_x=analyzed["theta"])
 
             # silicon bulk
             silicon_bulk_mask = np.logical_and(
@@ -173,26 +179,40 @@ class HistFactory:
                 analyzed["volume"] >= 100_000
             )
 
-            # silicon bulk + theta < 0.01
-            shoot_in_atar = np.logical_and(
-                ak.any(silicon_bulk_mask, axis=1),
-                analyzed["theta"] < 0.1
+            # silicon bulk + theta < 0.01 + abs(x) < 10 + abs(y) < 10
+            shoot_in_atar = (
+                ak.any(silicon_bulk_mask, axis=1) &
+                (analyzed["theta"] < 0.1)
             )
 
-            filtered_analyzed = analyzed[ak.any(
-                silicon_bulk_mask, axis=1)]
+            filtered_analyzed = analyzed[shoot_in_atar]
+            shoot_in_atar_updated = (
+                (np.abs(filtered_analyzed["pos_x"]) < 10)
+                & (np.abs(filtered_analyzed["pos_y"]) < 10)
+            )
+            filtered_analyzed = filtered_analyzed[ak.all(shoot_in_atar_updated, axis=1)]
 
+            # silicon bulk again
             silicon_bulk_mask_updated = np.logical_and(
                 filtered_analyzed["volume"] <= 109_999,
                 filtered_analyzed["volume"] >= 100_000
             )
-            # dz > 0
+
+            # KE<1E-6 + silicon bulk
+            ke_mask = ak.any(
+                silicon_bulk_mask_updated
+                & (filtered_analyzed["pos_KE"]<1E-6),
+                axis=1
+            )
+            self.__h_stop_z.fill(stop_z_x=filtered_analyzed["pos_z"][ke_mask][:,-1])
+
+            # dz > 0 + silicon bulk
             dz_mask = np.logical_and(
                 np.abs(filtered_analyzed["diff_z"]) > 0,
                 silicon_bulk_mask_updated
             )
 
-            # dr > 0
+            # dr > 0 + silicon bulk
             dr_mask = np.logical_and(
                 np.abs(filtered_analyzed["diff_r"]) > 0,
                 silicon_bulk_mask_updated
@@ -212,14 +232,27 @@ class HistFactory:
                 filtered_analyzed["pos_z"][dz_mask]),
                                     dedz_vs_z_y=ak.flatten(dedz))
 
-            # print("small dEdx",np.sum(dedr<1E-3))
-            # print("large dEdx", len(ak.flatten(dedr)))
-            # print(filtered_analyzed["volume"][dr_mask][dedr<1E-3])
-
+            # weird_step_mask = (
+            #     (filtered_analyzed["pos_z"][dz_mask]<2.3)
+            #     & (filtered_analyzed["pos_z"][dz_mask]>1.5)
+            #     & (dedr>50)
+            # )
+            # weird_mask = ak.any(weird_step_mask, axis=1)
+            # weird = filtered_analyzed[weird_mask]
+            # print(weird["init_p"], weird["init_px"], weird["init_py"], weird["init_pz"],
+            #       weird["pos_x"][:,0], weird["pos_y"][:,0], weird["pos_z"][:,0],
+            #       weird["theta"],
+            #       filtered_analyzed["volume"][dz_mask][weird_step_mask],
+            #       filtered_analyzed["dE"][dz_mask][weird_step_mask],
+            #       filtered_analyzed["diff_r"][dz_mask][weird_step_mask])
 
             self.__h_dedr_vs_z.fill(dedr_vs_z_x=ak.flatten(
                 filtered_analyzed["pos_z"][dr_mask]),
                                     dedr_vs_z_y=ak.flatten(dedr))
+
+            # self.__h_dedr_vs_z.fill(dedr_vs_z_x=ak.flatten(
+            #     filtered_analyzed["pos_z"][dr_mask][weird_mask]),
+            #                         dedr_vs_z_y=ak.flatten(dedr[weird_mask]))
 
     # @staticmethod
     # @nb.njit
