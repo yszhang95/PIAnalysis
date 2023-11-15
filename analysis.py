@@ -1,12 +1,14 @@
 import numba as nb
 import numpy as np
 import awkward as ak
+from hepunits import units as u
 
 import uproot
 # import hist
 from hist import Hist
 
 import matplotlib
+from matplotlib import pyplot as plt
 import mplhep
 
 
@@ -27,40 +29,40 @@ class HistFactory:
         self.__track_tname = "track"
         # beam momentum, 1D, 0--100 MeV, 100 bins
         self.__h_beam_mom = (
-            Hist.new.Reg(100, 0, 100,
-                         name="beam momentum (MeV)").Double()
+            Hist.new.Reg(100, 0, 100, name="beam_mom_x",
+                         label="beam momentum (MeV)").Double()
         )
         # beam kinetic energy, 1D, 0--80 MeV, 80 bins
         self.__h_beam_ke = (
-            Hist.new.Reg(100, 0, 100, name="x",
+            Hist.new.Reg(100, 0, 100, name="beam_ke_x",
                          label="beam kinetic energy (MeV)").Double()
         )
 
         # beam incident angle in xy, -pi--pi, 50
         self.__h_beam_phi = (
-            Hist.new.Reg(50, -np.pi, np.pi, name="x",
+            Hist.new.Reg(50, -np.pi, np.pi, name="beam_phi_x",
                          label="beam incident angle in xy (rad)").Double()
         )
         # beam incident angle in xz, -pi--pi, 50
         self.__h_beam_theta = (
-            Hist.new.Reg(50, -np.pi, np.pi, name="x",
+            Hist.new.Reg(50, -np.pi, np.pi, name="beam_theta_x",
                          label="beam incident angle in xz (rad)").Double()
         )
         # dE/dr along trajectory vs. z, 2D histogram
         self.__h_dedr_vs_z = (
-            Hist.new.Reg(50, -1, 9, name="x", label="z (mm)")
-            .Reg(50, 0, 100, name="y", label="dE/dr (MeV/cm)")
+            Hist.new.Reg(50, -1, 9, name="dedr_vs_z_x", label="z (mm)")
+            .Reg(50, 0, 100, name="dedr_vs_z_y", label="dE/dr (MeV/cm)")
             .Double()
         )
         # dE/dr along z vs. z, 2D histogram
         self.__h_dedz_vs_z = (
-            Hist.new.Reg(50, -1, 9, name="x", label="z (mm)")
-            .Reg(50, 0, 100, name="y", label="dE/dz (MeV/cm)")
+            Hist.new.Reg(50, -1, 9, name="dedz_vs_z_x", label="z (mm)")
+            .Reg(50, 0, 100, name="dedz_vs_z_y", label="dE/dz (MeV/cm)")
             .Double()
         )
         # stopping point along z, 1D histogram
         self.__h_stop_z = (
-            Hist.new.Reg(100, -1, 9, name="x",
+            Hist.new.Reg(100, -1, 9, name="stop_z_x",
                          label="z of stopping point (mm)").Double()
         )
 
@@ -79,11 +81,18 @@ class HistFactory:
         """
         plot
         """
+        print(self.__h_dedr_vs_z)
+        mplhep.style.use("CMS")
         self.__h_beam_mom.plot()
         self.__h_beam_ke.plot()
         self.__h_beam_phi.plot()
         self.__h_beam_theta.plot()
-        self.__h_dedr_vs_z.plot()
+        mplhep.histplot(self.__h_beam_theta)
+        plt.savefig("beam_theta.png")
+        mplhep.hist2dplot(self.__h_dedr_vs_z,
+                          norm=matplotlib.colors.LogNorm(vmin=0.1))
+        #self.__h_dedr_vs_z.plot()
+        plt.savefig("dedr_vs_z.png")
         self.__h_dedz_vs_z.plot()
         self.__h_stop_z.plot()
 
@@ -150,10 +159,67 @@ class HistFactory:
             # steps["dE/dz"] = steps["dE"]/steps["diff_z"]
             steps["z_stop"] = selected["track.post_z"][:, 0, -1]
 
+            steps["theta"] = np.arccos(steps["init_pz"]/
+                                       steps["init_p"])
+
             analyzed = ak.Array(steps)
-            # print(analyzed)
-            # for event in analyzed:
-            #     print(event.tolist())
+
+            # fill incident angle
+            self.__h_beam_theta.fill(analyzed["theta"])
+
+            # silicon bulk
+            silicon_bulk_mask = np.logical_and(
+                analyzed["volume"] <= 109_999,
+                analyzed["volume"] >= 100_000
+            )
+
+            # silicon bulk + theta < 0.01
+            shoot_in_atar = np.logical_and(
+                ak.any(silicon_bulk_mask, axis=1),
+                analyzed["theta"] < 0.1
+            )
+
+            filtered_analyzed = analyzed[ak.any(
+                silicon_bulk_mask, axis=1)]
+
+            silicon_bulk_mask_updated = np.logical_and(
+                filtered_analyzed["volume"] <= 109_999,
+                filtered_analyzed["volume"] >= 100_000
+            )
+            # dz > 0
+            dz_mask = np.logical_and(
+                np.abs(filtered_analyzed["diff_z"]) > 0,
+                silicon_bulk_mask_updated
+            )
+
+            # dr > 0
+            dr_mask = np.logical_and(
+                np.abs(filtered_analyzed["diff_r"]) > 0,
+                silicon_bulk_mask_updated
+            )
+
+            dedz = (
+                filtered_analyzed["dE"][dz_mask]/
+                filtered_analyzed["diff_z"][dz_mask]
+            ) / u.mm * u.cm
+
+            dedr = (
+                filtered_analyzed["dE"][dr_mask]/
+                filtered_analyzed["diff_r"][dr_mask]
+                    ) / u.mm * u.cm
+
+            self.__h_dedz_vs_z.fill(dedz_vs_z_x=ak.flatten(
+                filtered_analyzed["pos_z"][dz_mask]),
+                                    dedz_vs_z_y=ak.flatten(dedz))
+
+            # print("small dEdx",np.sum(dedr<1E-3))
+            # print("large dEdx", len(ak.flatten(dedr)))
+            # print(filtered_analyzed["volume"][dr_mask][dedr<1E-3])
+
+
+            self.__h_dedr_vs_z.fill(dedr_vs_z_x=ak.flatten(
+                filtered_analyzed["pos_z"][dr_mask]),
+                                    dedr_vs_z_y=ak.flatten(dedr))
 
     # @staticmethod
     # @nb.njit
