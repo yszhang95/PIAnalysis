@@ -79,13 +79,20 @@ class HistFactory:
         plot
         """
         mplhep.style.use("CMS")
-        self.__h_beam_mom.plot()
-        self.__h_beam_ke.plot()
-        self.__h_beam_phi.plot()
-        self.__h_beam_theta.plot()
+        fig_beam_mom, ax_beam_mom = plt.subplots()
+        mplhep.histplot(self.__h_beam_mom, ax=ax_beam_mom)
+        plt.savefig("beam_mom.png")
 
-        fig_theta, ax_theta = plt.subplots()
-        mplhep.histplot(self.__h_beam_theta, ax=ax_theta)
+        fig_beam_ke, ax_beam_ke = plt.subplots()
+        mplhep.histplot(self.__h_beam_ke, ax=ax_beam_ke)
+        plt.savefig("beam_ke.png")
+
+        fig_beam_phi, ax_beam_phi = plt.subplots()
+        mplhep.histplot(self.__h_beam_phi, ax=ax_beam_phi)
+        plt.savefig("beam_phi.png")
+
+        fig_beam_theta, ax_beam_theta = plt.subplots()
+        mplhep.histplot(self.__h_beam_theta, ax=ax_beam_theta)
         plt.savefig("beam_theta.png")
 
         fig_dedr_vs_z, ax_dedr_vs_z = plt.subplots()
@@ -110,7 +117,10 @@ class HistFactory:
                                  .format(f=f, t=self.__tname,
                                          subt=self.__track_tname)
                                  for f in self.__flist])
+        ibatch = 0
         for batch in f_iter:
+            print("{}th batch".format(ibatch))
+            ibatch = ibatch+1
             # self.__miniloop(batch.keys())
             # select pions
             pdgid_mask = batch["track.pdgid"] == self.__filter_pdgid
@@ -167,10 +177,17 @@ class HistFactory:
             steps["theta"] = np.arccos(steps["init_pz"]/
                                        steps["init_p"])
 
+            steps["phi"] = np.arctan(steps["init_py"]/
+                                       steps["init_px"])
+
             analyzed = ak.Array(steps)
 
             # fill incident angle
             self.__h_beam_theta.fill(beam_theta_x=analyzed["theta"])
+            self.__h_beam_phi.fill(beam_phi_x=analyzed["phi"])
+            # fill incident kinetic energy and momentum
+            self.__h_beam_ke.fill(beam_ke_x=analyzed["init_KE"])
+            self.__h_beam_mom.fill(beam_mom_x=analyzed["init_p"])
 
             # silicon bulk
             silicon_bulk_mask = np.logical_and(
