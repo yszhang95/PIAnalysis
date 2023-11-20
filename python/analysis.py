@@ -11,6 +11,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 import mplhep
 
+
 class HistFactory:
     """
     Histogram factory
@@ -18,7 +19,7 @@ class HistFactory:
 
     def __init__(self):
         # static member?
-        self.__mpion = 139 # MeV
+        self.__mpion = 139  # MeV
         self.__filter_pdgid = 211
         self.__flist = []
         self.__tname = "sim"
@@ -125,7 +126,7 @@ class HistFactory:
             # select pions
             pdgid_mask = batch["track.pdgid"] == self.__filter_pdgid
             selected = batch[pdgid_mask]
-            selected_pdgid = batch[pdgid_mask]['track.pdgid']
+            # selected_pdgid = batch[pdgid_mask]['track.pdgid']
             # from here, I always assume one particle in one event
 
             # analyzed = nevent * [
@@ -174,11 +175,11 @@ class HistFactory:
             # steps["dE/dz"] = steps["dE"]/steps["diff_z"]
             steps["z_stop"] = selected["track.post_z"][:, 0, -1]
 
-            steps["theta"] = np.arccos(steps["init_pz"]/
+            steps["theta"] = np.arccos(steps["init_pz"] /
                                        steps["init_p"])
 
-            steps["phi"] = np.arctan(steps["init_py"]/
-                                       steps["init_px"])
+            steps["phi"] = np.arctan(steps["init_py"] /
+                                     steps["init_px"])
 
             analyzed = ak.Array(steps)
 
@@ -218,11 +219,11 @@ class HistFactory:
             # KE<1E-6 + silicon bulk
             ke_mask = ak.any(
                 silicon_bulk_mask_updated
-                & (filtered_analyzed["pos_KE"]<1E-6),
+                & (filtered_analyzed["pos_KE"] < 1E-6),
                 axis=1
             )
             self.__h_stop_z.fill(
-                stop_z_x=filtered_analyzed["pos_z"][ke_mask][:,-1])
+                stop_z_x=filtered_analyzed["pos_z"][ke_mask][:, -1])
 
             # dz > 0 + silicon bulk
             dz_mask = np.logical_and(
@@ -237,19 +238,18 @@ class HistFactory:
             )
 
             dedz = (
-                filtered_analyzed["dE"][dz_mask]/
+                filtered_analyzed["dE"][dz_mask] /
                 filtered_analyzed["diff_z"][dz_mask]
             ) / u.mm * u.cm
 
             dedr = (
-                filtered_analyzed["dE"][dr_mask]/
+                filtered_analyzed["dE"][dr_mask] /
                 filtered_analyzed["diff_r"][dr_mask]
                     ) / u.mm * u.cm
 
             self.__h_dedz_vs_z.fill(dedz_vs_z_x=ak.flatten(
                 filtered_analyzed["pos_z"][dz_mask]),
                                     dedz_vs_z_y=ak.flatten(dedz))
-
             # weird_step_mask = (
             #     (filtered_analyzed["pos_z"][dz_mask]<2.3)
             #     & (filtered_analyzed["pos_z"][dz_mask]>1.5)
