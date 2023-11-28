@@ -12,12 +12,15 @@ git clone --recurse-submodules https://github.com/yszhang95/PIAnalysis.git
   `CMakeLists.txt` under `shared` with `shared_cmake.txt`.
 - Configure `cmake` and build. Replace
   `/opt/local/libexec/root6/share/root/cmake` with the path it
-  actually is on one's own OS.```shell
+  actually is on one's own OS.
+An example is
+```shell
+  cp shared_cmake.txt shared/CMakeLists.txt
   cmake -B build -S . \
   -DROOT_DIR=/opt/local/libexec/root6/share/root/cmake \
   -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build build --target install
-  \```
+```
 
 ### Run macro
 Edit the input in `acceptance/test/run_hit_merger.C` and validate it.
