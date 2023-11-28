@@ -1,0 +1,67 @@
+#----------------------------------------------------------------------------
+# Setup the project
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+project(PIONEER_LIB)
+
+
+# Set up global configuration
+# ===========================
+
+# Define default installation directory
+
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
+
+# Locate packages and include them
+# ================================
+
+# ROOT
+include("${ROOT_DIR}/RootMacros.cmake")
+
+# Collect git information
+# =======================
+
+configure_file(
+   "${PROJECT_SOURCE_DIR}/src/PIVersion.cc.in"
+   "${CMAKE_CURRENT_BINARY_DIR}/PIVersion.cc"
+   @ONLY
+   )
+
+
+# Locate sources and headers for this project
+# ===========================================
+
+# Header files
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+
+# ROOT Dictionary
+file(GLOB dictSources ${PROJECT_SOURCE_DIR}/src/*.cc)
+list(APPEND dictSources "${CMAKE_CURRENT_BINARY_DIR}/PIVersion.cc")
+
+file(GLOB dictHeaders ${PROJECT_SOURCE_DIR}/include/*.hh)
+
+# Set up ROOT dictionary
+# ======================
+
+add_library(PiRootDict SHARED ${dictSources})
+target_link_libraries(PiRootDict ${ROOT_LIBRARIES} ROOT::GenVector)
+
+root_generate_dictionary(genRootDict ${dictHeaders}
+      MODULE PiRootDict
+      LINKDEF ${PROJECT_SOURCE_DIR}/include/LinkDef.h
+      )
+
+# Installation
+# ============
+
+# Libraries
+
+install(TARGETS PiRootDict DESTINATION lib)
+
+# Additional files required by the ROOT dictionary
+install(FILES
+          ${CMAKE_CURRENT_BINARY_DIR}/libPiRootDict_rdict.pcm
+          ${CMAKE_CURRENT_BINARY_DIR}/libPiRootDict.rootmap
+        DESTINATION lib)
+

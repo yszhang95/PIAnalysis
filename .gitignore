@@ -40,3 +40,8 @@ __pycache__
 
 # plots
 **/*png
+
+# build and install
+**/*.cache*/
+**/*build*/
+**/*install*/
