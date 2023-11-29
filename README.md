@@ -10,12 +10,16 @@ git clone --recurse-submodules https://github.com/yszhang95/PIAnalysis.git
 ### Build
 - Some customization are necessary for reading data, replace
   `CMakeLists.txt` under `shared` with `shared_cmake.txt`.
+- Update the content in `shared/include/PIMCAtar.hh`. Convert getters
+  to constant version
 - Configure `cmake` and build. Replace
   `/opt/local/libexec/root6/share/root/cmake` with the path it
   actually is on one's own OS.
 An example is
 ```shell
   cp shared_cmake.txt shared/CMakeLists.txt
+  cd shared/include
+  perl -i.bak -pe 's/Get(.+?)\(\)/Get$1() const/g' PIMCAtar.hh
   cmake -B build -S . \
   -DROOT_DIR=/opt/local/libexec/root6/share/root/cmake \
   -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXPORT_COMPILE_COMMANDS=1

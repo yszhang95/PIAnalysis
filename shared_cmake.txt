@@ -16,7 +16,7 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 # ================================
 
 # ROOT
-include("${ROOT_DIR}/RootMacros.cmake")
+find_package(ROOT 6.24 REQUIRED)
 
 # Collect git information
 # =======================
