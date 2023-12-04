@@ -1,3 +1,4 @@
+#include <TPolyLine3D.h>
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -36,25 +37,27 @@ PIAnaG4StepDivider::process_atar_hit(PIMCAtar const & hit)
   unsigned int nsteps =
     static_cast<unsigned int>(std::ceil(dr/this->step_limit_));
 
-  if (nsteps > 100 && dr < g4_step_limit_) {
-    throw std::logic_error("nsteps > 100");
+  if (nsteps > 1000 && dr < g4_step_limit_) {
+    throw std::logic_error("nsteps > 1000");
   }
 
-  const double step_size = dr / nsteps;
   const double edep = hit.GetEdep() / nsteps;
   const double dt = hit.GetDT() / nsteps;
 
   for (unsigned int istep=0; istep<nsteps; ++istep) {
-    double x0 = pre_x + step_size * istep;
-    double y0 = pre_y + step_size * istep;
-    double z0 = pre_z + step_size * istep;
+    double x0 = pre_x + dx/nsteps * istep;
+    double y0 = pre_y + dy/nsteps * istep;
+    double z0 = pre_z + dz/nsteps * istep;
     double t1 = pos_t + dt        * istep;
 
-    const int xstrip  = PIAnaHit::find_strip( x0 );
-    const int ystrip  = PIAnaHit::find_strip( y0 );
-    const int layerid = PIAnaHit::find_layer( z0 );
+    const auto xstrip  = PIAnaHit::find_strip( x0 );
+    const auto ystrip  = PIAnaHit::find_strip( y0 );
+    const auto layerid = PIAnaHit::find_layer( z0 );
 
-    hits.emplace_back(x0, y0, z0, edep, t1, dt, xstrip, ystrip, layerid,
+    hits.emplace_back(x0, y0, z0,
+                      xstrip.second, ystrip.second, layerid.second,
+                      edep, t1, dt,
+                      xstrip.first, ystrip.first, layerid.first,
                       hit.GetPDGID(), hit.GetTrackID(), true);
   }
   return hits;
@@ -107,7 +110,7 @@ std::vector<PIAnaHit> PIAnaHitMerger::merge(std::vector<PIAnaHit> hits)
   return hits;
 }
 
-int PIAnaHit::find_layer(double const z)
+std::pair<int, double> PIAnaHit::find_layer(double const z)
 {
   const int nlayers = 48;
   double thickness = 0.12; // mm
@@ -124,7 +127,7 @@ int PIAnaHit::find_layer(double const z)
   // optimize later
   for (int i=0; i<nlayers; ++i) {
     if (z < z1 && z>= z0) {
-      return i;
+      return std::make_pair(i, (z1+z0)/2.);
     }
     z0 += thickness;
     z1 += thickness;
@@ -136,10 +139,10 @@ int PIAnaHit::find_layer(double const z)
       z1 += pass_thick/2.;
     }
   }
-  return -1;
+  return std::pair<int, double> {-1, -1E3};
 }
 
-int PIAnaHit::find_strip(double const loc)
+std::pair<int, double> PIAnaHit::find_strip(double const loc)
 {
   const int nstrips = 100;
   const double strip_w = 0.2;
@@ -148,13 +151,14 @@ int PIAnaHit::find_strip(double const loc)
 
   // optimize later
   for (int i=0; i<nstrips; ++i) {
-    if ( loc < loc1 && loc > loc0 ) {
-      return i;
+    if ( loc < loc1 && loc >= loc0 ) {
+      return std::pair<int, double>{i, (loc1+loc0)/2.};
     }
     loc0 += strip_w;
     loc1 += strip_w;
   }
-  return -1;
+
+  return std::pair<int, double> {-1, -1E5};
 }
 
 
