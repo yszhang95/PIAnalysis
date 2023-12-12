@@ -3,6 +3,8 @@
 #include "TGraph2D.h"
 #include "TFile.h"
 #include "TTree.h"
+
+#include <iostream>
 #include <iterator>
 
 #ifndef __CLING__
@@ -13,7 +15,23 @@ R__LOAD_LIBRARY(../../install/lib/libPiRootDict.dylib)
 R__LOAD_LIBRARY(../../install/lib/libPiAnaAcc.dylib)
 #endif
 
-void run_hit_merger(Long64_t entry=-1)
+void print_hit(const PIAnaHit& hit)
+{
+  std::cout << "layer: "<< hit.layer()
+  << "\txstrip: " << hit.xstrip()
+  << "\tystrip: " << hit.ystrip()
+  << "\tt: " << hit.t() << "\t";
+  std::cout << "z: " << hit.z() << "\t";
+  std::cout << "rec_z: " << hit.rec_z() << "\t";
+  // std::cout << "dE/dz: " << rec_hits.at(i).edep() / 0.012 << "\t";
+  std::cout << "pdgid: " << hit.pdgid() << " pdgids: ";
+  for (const auto id : hit.pdgids()) {
+    std::cout << id << "\t";
+  }
+  std::cout <<  "\n";
+}
+
+void run_hit_merger(Long64_t entry=-1, const bool printout=false)
 {
   // plotter
   TGraph2D* pi_rec_plot = nullptr;
@@ -80,24 +98,26 @@ void run_hit_merger(Long64_t entry=-1)
 
       // std::cout << "\n" << j << "th event\n";
       for (int i=0; i<merged_hits.size(); ++i) {
+        if (!printout) break;
         const auto& hit = merged_hits.at(i);
-        std::cout << "layer: "<< hit.layer() << "\t";
-        std::cout << "z: " << hit.z() << "\t";
-        std::cout << "rec_z: " << hit.rec_z() << "\t";
-        // std::cout << "dE/dz: " << rec_hits.at(i).edep() / 0.012 << "\t";
-        std::cout << "pdgid: " << hit.pdgid() << " pdgids: ";
-        for (const auto id : hit.pdgids()) {
-          std::cout << id << "\t";
-        }
-        std::cout <<  "\n";
       }
       if (atar_hit) {
+        if (!printout) break;
+        std::cout << "\n";
         gen_hits.push_back(*atar_hit);
         std::cout << "gen step" << gen_hits.size()-1 << "\t"
         << "z0: " << atar_hit->GetZ0() << "\t"
         << "z1: " << atar_hit->GetZ1() << "\t"
         << "pdgid: " << atar_hit->GetPDGID()
         << "\n";
+      }
+    }
+
+    rec_hits = merger.merge(rec_hits);
+
+    if (printout) {
+      for(const auto &hit : rec_hits) {
+        print_hit(hit);
       }
     }
 

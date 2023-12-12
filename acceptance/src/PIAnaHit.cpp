@@ -69,7 +69,7 @@ bool PIAnaHitMerger::merge(PIAnaHit const& h1, PIAnaHit const& h2)
   merge = merge && h1.xstrip() == h2.xstrip();
   merge = merge && h1.ystrip() == h2.ystrip();
   merge = merge && h1.layer() == h2.layer();
-  return true;
+  return merge;
 }
 
 std::vector<PIAnaHit> PIAnaHitMerger::merge(std::vector<PIAnaHit> hits)
@@ -96,8 +96,8 @@ std::vector<PIAnaHit> PIAnaHitMerger::merge(std::vector<PIAnaHit> hits)
         main_hit.insert_pdgid(second_hit.pdgids().begin(), second_hit.pdgids().end());
         main_hit.insert_trackid(second_hit.trackids().begin(), second_hit.trackids().end());
 
-        main_hit.valid(false);
-        second_hit.valid(true);
+        main_hit.valid(true);
+        second_hit.valid(false);
       }
     }
   }

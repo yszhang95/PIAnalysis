@@ -1,6 +1,8 @@
 /*
   Hit
  */
+#ifndef __PI_ANA_HIT__
+#define __PI_ANA_HIT__
 #include "TROOT.h"
 
 #include <Rtypes.h>
@@ -144,3 +146,5 @@ private:
   int    trackid_;
   bool   valid_;
 };
+
+#endif
