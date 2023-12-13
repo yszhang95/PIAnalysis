@@ -9,6 +9,7 @@
 
 #ifndef __CLING__
 #include "PIAnaHit.hpp"
+#include "PIAnaPat.hpp"
 #include "PIMCAtar.hh"
 #else
 R__LOAD_LIBRARY(../../install/lib/libPiRootDict.dylib)
@@ -31,7 +32,7 @@ void print_hit(const PIAnaHit& hit)
   std::cout <<  "\n";
 }
 
-void run_hit_merger(Long64_t entry=-1, const bool printout=false)
+void run_hit_merger(Long64_t entry=-1, const bool printout=true)
 {
   // plotter
   TGraph2D* pi_rec_plot = nullptr;
@@ -45,7 +46,10 @@ void run_hit_merger(Long64_t entry=-1, const bool printout=false)
   divider.g4_step_limit(60); // I assume it is in mm
 
   PIAnaHitMerger merger;
-  merger.dt_min(20); // I assum it is in ns
+  merger.dt_min(1); // I assum it is in ns
+
+  PIAnaPat patern;
+  patern.verbose(true);
 
   TClonesArray *fAtar = new TClonesArray("PIMCAtar");
 
@@ -119,6 +123,13 @@ void run_hit_merger(Long64_t entry=-1, const bool printout=false)
       for(const auto &hit : rec_hits) {
         print_hit(hit);
       }
+    }
+
+    if (!rec_hits.empty()) {
+      patern.process_event(rec_hits);
+    }
+    else {
+      std::cout << "[LOG] No hits found in this event.\n";
     }
 
     if (entry >= 0 && !gen_hits.empty()) {
