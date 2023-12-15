@@ -79,6 +79,10 @@ public:
   double const rec_y() const { return this->rec_y_; }
   double const rec_z() const { return this->rec_z_; }
 
+  double const rec_xerr() const { return 0.10/std::sqrt(12); };
+  double const rec_yerr() const { return 0.10/std::sqrt(12); };
+  double const rec_zerr() const { return 0.12/std::sqrt(12); };
+
   double const edep() const { return this->edep_; }
   double const t() const { return this->post_t_ - this->dt_; }
   double const post_t() const { return this->post_t_; }

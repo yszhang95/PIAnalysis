@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include <TPolyLine3D.h>
 #include <iostream>
 #include <iterator>
 
@@ -41,15 +42,18 @@ void run_hit_merger(Long64_t entry=-1, const bool printout=true)
   TGraph2D* e_rec_plot = nullptr;
   TGraph2D* e_gen_plot = nullptr;
 
+  TPolyLine3D const * pi_line = nullptr;
+  TPolyLine3D const * e_line = nullptr;
+
   PIAnaG4StepDivider divider;
   divider.step_limit(0.01); // I assume it is in mm
   divider.g4_step_limit(60); // I assume it is in mm
 
   PIAnaHitMerger merger;
-  merger.dt_min(1); // I assum it is in ns
+  merger.dt_min(10); // I assum it is in ns
 
-  PIAnaPat patern;
-  patern.verbose(true);
+  PIAnaPat pattern;
+  pattern.verbose(true);
 
   TClonesArray *fAtar = new TClonesArray("PIMCAtar");
 
@@ -126,7 +130,13 @@ void run_hit_merger(Long64_t entry=-1, const bool printout=true)
     }
 
     if (!rec_hits.empty()) {
-      patern.process_event(rec_hits);
+      pattern.process_event(rec_hits);
+
+      auto loc_cluster = pattern.local_cluster() ;
+      const auto& pi_fitter = loc_cluster->pi_fitter();
+      pi_line = pi_fitter.graphics();
+      const auto& e_fitter = loc_cluster->e_fitter();
+      e_line = e_fitter.graphics();
     }
     else {
       std::cout << "[LOG] No hits found in this event.\n";
@@ -219,6 +229,17 @@ void run_hit_merger(Long64_t entry=-1, const bool printout=true)
     fout.cd();
     pi_gen_plot->Write(::Form("pi_gen_event%lld", entry));
   }
+
+  if (pi_line) {
+    fout.cd();
+    pi_line->Write(::Form("pi_fit_event%lld", entry));
+  }
+
+  if (e_line) {
+    fout.cd();
+    e_line->Write(::Form("e_fit_event%lld", entry));
+  }
+
 
   delete f;
 }
