@@ -35,5 +35,6 @@ cd acceptance/test
 # prepare a small ntuple of fast simulated hits using PIAnalyzer
 root -b -q run_test.C
 # event display
-./display.sh 12
+# assume the input file exists. Check the input file in run_hit_merger.C
+./display_track.sh 12
 ```
