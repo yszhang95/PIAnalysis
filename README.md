@@ -31,5 +31,9 @@ Edit the input in `acceptance/test/run_hit_merger.C` and validate it.
 Then do
 ```shell
 cd acceptance/test
-root -b -q run_hit_merger.C
+# root -b -q run_hit_merger.C
+# prepare a small ntuple of fast simulated hits using PIAnalyzer
+root -b -q run_test.C
+# event display
+./display.sh 12
 ```
