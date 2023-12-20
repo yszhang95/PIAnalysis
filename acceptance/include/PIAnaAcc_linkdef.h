@@ -5,12 +5,15 @@
 #pragma link off all functions;
 
 #pragma link C++ nestedclasses;
+
 #pragma link C++ class PIAnaHit+;
 #pragma link C++ class PIAnaHitMerger+;
 #pragma link C++ class PIAnaG4StepDivider+;
 
 #pragma link C++ class PIAnaLocCluster+;
 #pragma link C++ class PIAnaPat+;
+
+#pragma link C++ class PIAnalyzer+;
 
 #pragma link C++ class std::vector<PIAnaHit>+;
 #pragma link C++ class std::vector<PIMCAtar>+;

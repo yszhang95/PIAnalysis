@@ -38,7 +38,8 @@ PIAnaG4StepDivider::process_atar_hit(PIMCAtar const & hit)
     static_cast<unsigned int>(std::ceil(dr/this->step_limit_));
 
   if (nsteps > 1000 && dr < g4_step_limit_) {
-    throw std::logic_error("nsteps > 1000");
+    // throw std::logic_error("nsteps > 1000");
+    std::cerr << "[WARNING] nsteps > 1000\n";
   }
 
   const double edep = hit.GetEdep() / nsteps;
