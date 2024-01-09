@@ -84,7 +84,7 @@ std::vector<PIAnaHit> PIAnaHitMerger::merge(std::vector<PIAnaHit> hits)
     for (std::vector<PIAnaHit>::size_type j=i+1; j<hits.size(); ++j) {
       if (!hits.at(j).valid()) continue;
       bool merge_hits = merge(hits.at(i), hits.at(j));
-      // z ordered
+      // z ordered; merge if layer == layer
       if (!merge_hits && hits.at(i).layer() < hits.at(j).layer()) {
         break;
       } else if (merge_hits) {
@@ -92,8 +92,12 @@ std::vector<PIAnaHit> PIAnaHitMerger::merge(std::vector<PIAnaHit> hits)
         auto& second_hit = hits.at(i).t() >= hits.at(j).t() ? hits.at(i) : hits.at(j);
 
         main_hit.edep(hits.at(i).edep() + hits.at(j).edep());
+        // dt != hit1.dt + hit2.dt because hit1.post_t > hit2.t is possible
+        // t is calculated using post_t and dt;
+        // it must be called before modifying post_t
+        const double dt = second_hit.post_t() - main_hit.t();
+        main_hit.dt(dt);
         main_hit.post_t(second_hit.post_t());
-        main_hit.dt(hits.at(i).dt() + hits.at(j).dt());
         main_hit.insert_pdgid(second_hit.pdgids().begin(), second_hit.pdgids().end());
         main_hit.insert_trackid(second_hit.trackids().begin(), second_hit.trackids().end());
 
