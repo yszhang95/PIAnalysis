@@ -1,7 +1,7 @@
 #include <Rtypes.h>
 #ifdef __CLING__
-R__LOAD_LIBRARY(../../install/lib/libPiAnaAcc.dylib)
-R__LOAD_LIBRARY(../../install/lib/libPiRootDict.dylib)
+R__LOAD_LIBRARY(../../install/lib/libPiAnaAcc.so)
+R__LOAD_LIBRARY(../../install/lib/libPiRootDict.so)
 #else
 #include "PIAnalyzer.hpp"
 #endif

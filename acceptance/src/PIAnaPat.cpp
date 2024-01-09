@@ -1,4 +1,5 @@
 #include "PIAnaPat.hpp"
+#include <TDirectory.h>
 #include <TPolyLine3D.h>
 #include <memory>
 #include <shared_mutex>
@@ -85,8 +86,8 @@ TPolyLine3D const* PIAnaLineFitter::graphics() const
   return new TPolyLine3D(*line_);
 }
 
-
-void PIAnaLineFitter::load_data(std::vector<PIAnaHit const*> hits)
+void PIAnaLineFitter::load_data(std::vector<PIAnaHit const *> hits,
+                                const bool update_pars)
 {
   if (hits.empty()) return;
   std::sort(std::begin(hits), std::end(hits),
@@ -106,23 +107,26 @@ void PIAnaLineFitter::load_data(std::vector<PIAnaHit const*> hits)
   }
   func_.load_data(g);
 
-  ROOT::Math::SMatrix2D mat;
-  mat(0,0) = 1;
-  mat(0,1) = hits.front()->rec_z();
-  mat(1,0) = 1;
-  mat(1,1) = hits.back()->rec_z();
-  mat.InvertFast();
+  if (update_pars) {
+      ROOT::Math::SMatrix2D mat;
+      mat(0,0) = 1;
+      mat(0,1) = hits.front()->rec_z();
+      mat(1,0) = 1;
+      mat(1,1) = hits.back()->rec_z();
+      mat.InvertFast();
 
-  ROOT::Math::SVector<double, 2> xvec{hits.front()->rec_x(), hits.back()->rec_x()};
-  auto xpars = mat * xvec;
-  pars_[0] = xpars(0);
-  pars_[1] = xpars(1);
+      ROOT::Math::SVector<double, 2> xvec{hits.front()->rec_x(), hits.back()->rec_x()};
+      auto xpars = mat * xvec;
+      pars_[0] = xpars(0);
+      pars_[1] = xpars(1);
 
-  ROOT::Math::SVector<double, 2> yvec{
-    hits.front()->rec_y(), hits.back()->rec_y()};
-  auto ypars = mat * yvec;
-  pars_[2] = ypars(0);
-  pars_[3] = ypars(1);
+      ROOT::Math::SVector<double, 2> yvec{
+        hits.front()->rec_y(), hits.back()->rec_y()};
+      auto ypars = mat * yvec;
+      pars_[2] = ypars(0);
+      pars_[3] = ypars(1);
+  }
+
 }
 
 bool PIAnaLineFitter::fit()
@@ -130,19 +134,38 @@ bool PIAnaLineFitter::fit()
   if (!func_.initialized()) {
     return false;
   }
-
+  const uint printlevel =
+    ROOT::Math::MinimizerOptions::DefaultPrintLevel();
+  const uint ncalls =
+    ROOT::Math::MinimizerOptions::DefaultMaxFunctionCalls();
+  const double prec = ROOT::Math::MinimizerOptions::DefaultPrecision();
   ROOT::Math::Functor fc(func_, 4);
-  fitter_.SetFCN(fc, pars_);;
+  fitter_.SetFCN(fc, pars_);
 
   bool ok = fitter_.FitFCN();
 
+  result_ptr_ = std::make_shared<TFitResult>(fitter_.Result());
+  //  result_ptr_->Print();
+
+  while (!ok) {
+    double curr_prec = ROOT::Math::MinimizerOptions::DefaultPrecision();
+    if (curr_prec < 0) curr_prec = 1E-6;
+    //    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(1);
+    ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(3000);
+    ROOT::Math::MinimizerOptions::SetDefaultPrecision(5 * curr_prec);
+    ok = fitter_.FitFCN();
+    result_ptr_ = std::make_shared<TFitResult>(fitter_.Result());
+
+    if (curr_prec> 10) break;
+  }
+
   if (!ok) {
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(printlevel);
+    ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(ncalls);
+    ROOT::Math::MinimizerOptions::SetDefaultPrecision(prec);
     Error("PIAnaLineFitter::fit", "Straight line fit failed.");
     return false;
   }
-
-  result_ptr_ = std::make_shared<TFitResult>(fitter_.Result());
-  result_ptr_->Print();
 
   line_ = std::make_unique<TPolyLine3D>(1000);
   auto g = func_.get_data();
@@ -416,23 +439,116 @@ bool PIAnaLocCluster::cluster_e_hits
   return true;
 }
 
-
-template<typename Iter>
-PIAnaPat::PIAnaPat(Iter first, Iter last)
-: hits_(first, last)
+bool
+PIAnaLocCluster::cluster_hits(std::vector<const PIAnaHit*> const& hits)
 {
-  initialize_shared_loc();
+  p_hits_.clear();
+  np_hits_.clear();
+  for (const auto hit : hits) {
+    if (std::abs(hit->t() - t0_) < 1) {
+      p_hits_.push_back(hit);
+    } else
+      if (std::abs(hit->t() - t0_) > 5) {
+      np_hits_.push_back(hit);
+    }
+  }
+  // temporarily skip the following
+  return !np_hits_.empty();
+
+  // iteratively add hits
+  std::vector<PIAnaHit const *> pi_hits;
+  std::vector<PIAnaHit const *>::const_iterator it_beg = p_hits_.cbegin();
+  for (auto it = p_hits_.cbegin(); it != p_hits_.cend(); ++it) {
+    const auto &hit = *it;
+    if (pi_hits.empty()) {
+      pi_hits.push_back(*it);
+    } else if (std::abs(hit->xstrip() - pi_hits.front()->xstrip()) > 2 ||
+               std::abs(hit->ystrip() - pi_hits.front()->ystrip()) > 2) {
+      continue;
+    } else {
+      pi_hits.push_back(hit);
+      it_beg = it;
+    }
+    if (pi_hits.size() > 3) {
+      break;
+    }
+  }
+  pi_fitter_.load_data(p_hits_);
+  pi_fitter_.fit();
+  for (auto it = it_beg; it != p_hits_.end(); ++it) {
+    const auto& hit = *it;
+    pi_hits.push_back(hit);
+
+    pi_fitter_.load_data(pi_hits, false);
+    const bool ok = pi_fitter_.fit();
+    if (!ok) {
+      pi_fitter_.load_data(pi_hits, true);
+      bool pion = false;
+      for (const auto pdgid : hit->pdgids()) {
+        if (pdgid == 211) pion = true;
+      }
+      continue;
+    }
+
+    auto fit_result = pi_fitter_.get_fit_result();
+    const double* pars = fit_result->GetParams();
+
+    const auto pull2 = pi_fitter_.compute_pull2(
+        hit->rec_x(), hit->rec_y(), hit->rec_z(), hit->rec_xerr(),
+        hit->rec_yerr(), hit->rec_yerr());
+    if (pull2 > 7 * 7)
+      pi_hits.pop_back();
+
+    // assume layer thickness is 120um
+    // dx is in cm
+    const auto dx = 0.012*std::sqrt(1 + pars[1]*pars[1] + pars[3]*pars[3]);
+    const auto dedx = hit->edep()/dx;
+    // 1 MIP ~ 3.875 MeV/cm
+    const auto EMIP = 3.875;
+    if (dedx < 3 * EMIP)
+      pi_hits.pop_back();
+
+    std::string msg = ::Form("dEdx: %.3f MeV/cm", dedx);
+    Info("PIAnaLocCluster::cluster_hits", msg.c_str());
+  }
+
+  p_hits_ = pi_hits;
+
+  return !np_hits_.empty();
 }
 
-void PIAnaPat::process_event(std::vector<PIAnaHit> const& rec_hits)
+// template<typename Iter>
+// PIAnaPat::PIAnaPat(Iter first, Iter last)
+int PIAnaPat::process_event(std::vector<PIAnaHit> const &rec_hits)
 {
   hits_.assign(rec_hits.begin(), rec_hits.end());
+  return process_event();
+}
+
+int PIAnaPat::process_event()
+{
+  std::vector<PIAnaHit const*> hit_ptrs;
+  // initialize a list of pointers
+  for(const auto& hit : hits_) {
+    const PIAnaHit *h = &hit;
+    hit_ptrs.push_back(h);
+  }
+
   initialize_shared_loc();
 
   // first iteration
   colls_ = std::make_unique<PIAnaLocCluster>(verbose_);
-  colls_->cluster_hits(shared_loc_);
+  colls_->t0(t0_);
+  // colls_->cluster_hits(shared_loc_);
+
+  const bool has_np = colls_->cluster_hits(hit_ptrs);
+
+  if (!has_np) {
+    return 2;
+  }
+  return 0;
 }
+
 
 void PIAnaPat::initialize_shared_loc()
 {

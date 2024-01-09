@@ -10,6 +10,7 @@
 
 // #include "TTree.h"
 class TChain;
+class TH1D;
 class TTree;
 class TFile;
 class TClonesArray;
@@ -39,13 +40,24 @@ void filenames(InputIter first, InputIter last);
 
 private:
   void clear();
-  void analyze(long long);
+  int analyze(long long);
 
-  void analyze_atar_hits();
+  int analyze_atar_hits();
 
   std::unique_ptr<TChain> chain_;
   std::unique_ptr<TFile> fout_;
-  TTree* t_;
+  TTree *t_;
+
+  TH1D *h_pi_fake_;
+  TH1D *h_pi_true_;
+  TH1D *h_pi_all_;
+
+  TH1D *h_e_fake_;
+  TH1D *h_e_true_;
+  TH1D *h_e_all_;
+
+  TH1D *h_prompt_;
+  TH1D *h_nonprompt_;
 
   std::unique_ptr<PIAnaG4StepDivider> divider_;
   std::unique_ptr<PIAnaHitMerger> merger_;

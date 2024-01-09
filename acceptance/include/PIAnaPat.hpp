@@ -37,12 +37,12 @@ public:
     TGraph2DErrors const& get_data();
 
   private:
-
     std::shared_ptr<TGraph2DErrors> g_;
   };
 
   PIAnaLineFitter() { for (int i=0; i!=4; ++i) { pars_[i]=0; } }
-  void load_data(std::vector<PIAnaHit const*>);
+  void load_data(std::vector<PIAnaHit const *> hits,
+                 const bool update_pars=true);
   bool fit();
 
   double compute_pull2(double x, double y, double z,
@@ -77,22 +77,37 @@ public:
     e_hits_.clear();
   }
 
-  std::pair<bool, PIAnaHit const*>
-  get_pi_stop_hit(std::vector<std::vector<const PIAnaHit* > > const&);
+  std::pair<bool, PIAnaHit const *>
+  get_pi_stop_hit(std::vector<std::vector<const PIAnaHit *>> const &);
 
-  void cluster_hits(std::vector<std::vector<const PIAnaHit* > > const&);
+  void cluster_hits(std::vector<std::vector<const PIAnaHit *>> const &);
   bool cluster_pi_hits(std::vector<std::vector<const PIAnaHit* > > const&);
-  bool cluster_e_hits(std::vector<std::vector<const PIAnaHit* > > const&);
+  bool cluster_e_hits(std::vector<std::vector<const PIAnaHit *>> const &);
+
+  std::pair<bool, PIAnaHit const *>
+  get_pi_stop_hit(std::vector<const PIAnaHit* > const&);
+  bool cluster_hits(std::vector<const PIAnaHit *> const &);
+  const std::vector<const PIAnaHit *> &prompt_cluster() const {
+    return p_hits_;
+  }
+  const std::vector<const PIAnaHit *> &nonprompt_cluster() const
+  { return np_hits_; }
+
   void verbose(const bool verbose) { this->verbose_ = verbose; }
+  void t0(const double t0) { this->t0_ = t0; };
 
   PIAnaLineFitter const& pi_fitter() const { return pi_fitter_; }
   PIAnaLineFitter const& e_fitter() const { return e_fitter_; }
   const bool verbose() const { return verbose_; }
+  const double t0() const { return t0_; }
 
   ClassDef(PIAnaLocCluster, 1)
 
 private:
   void setup_pi_stop(PIAnaHit const&);
+
+  std::vector<PIAnaHit const*> p_hits_; // prompt hits
+  std::vector<PIAnaHit const *> np_hits_; // nonprompt hits
 
   std::vector<PIAnaHit const*> pi_hits_;
   std::vector<PIAnaHit const*> mu_hits_;
@@ -106,6 +121,8 @@ private:
   double pi_stop_z_;
   double pi_stop_t_;
 
+  double t0_;
+
   int pi_stop_xstrip_;
   int pi_stop_ystrip_;
   int pi_stop_zlayer_;
@@ -117,23 +134,30 @@ class PIAnaPat
 {
 public:
   PIAnaPat(): verbose_(false) {};
-  template<typename Iter>
-  PIAnaPat(Iter begin, Iter end);
+  template <typename Iter>
+  PIAnaPat(Iter first, Iter last) : hits_(first, last)
+  { initialize_shared_loc(); }
   // input is a collection of hits in an event
-  // template<typename Iter>
-  // void process_event(Iter begin, Iter end);
-  void process_event(std::vector<PIAnaHit> const&);
+  template <typename Iter>
+  int process_event(Iter first, Iter last)
+  {
+    hits_.assign(first, last);
+    return process_event();
+  }
+  int process_event(std::vector<PIAnaHit> const &);
 
   void verbose(const bool verbose) { this->verbose_ = verbose; }
+  void t0(const double t0) { this->t0_ = t0; };
 
   PIAnaLocCluster const* local_cluster() { return colls_.get(); }
 
+  const double t0() const { return t0_; }
   const bool verbose() const { return verbose_; }
 
   ClassDef(PIAnaPat, 1)
 
 private:
-
+  int process_event();
   void initialize_shared_loc();
   std::unique_ptr<PIAnaLocCluster> colls_;
   std::vector<std::vector<PIAnaHit const* > > shared_loc_;
@@ -142,6 +166,7 @@ private:
   std::unique_ptr<TH1F> hpass_;
   std::unique_ptr<TH1F> hall_;
 
+  double t0_;
   bool verbose_;
 };
 
