@@ -1,11 +1,10 @@
 #ifndef __PI_Analyzer__
 #define __PI_Analyzer__
 
-#include <RtypesCore.h>
-#include <TClonesArray.h>
+#include "PIAnaEvtBase.hpp"
+#include <Rtypes.h>
 #include <memory>
 #include <string>
-#include <sys/types.h>
 #include <vector>
 
 // #include "TTree.h"
@@ -21,22 +20,16 @@ class PIAnaG4StepDivider;
 
 class PIMCInfo;
 
-class PIAnalyzer
+class PIAnalyzer : public PIAnaEvtBase
 {
 public:
   PIAnalyzer(const std::string&);
   ~PIAnalyzer();
-  void begin();
-  void run();
-  void end();
+  void begin() override;
+  void run() override;
+  void end() override;
 
-  void treename(std::string const& n);
-  template<typename InputIter>
-void filenames(InputIter first, InputIter last);
-  void add_file(const std::string&);
-  void add_friend(const std::string&);
-
-  ClassDef(PIAnalyzer, 1)
+  ClassDefOverride(PIAnalyzer, 1)
 
 private:
   void clear();
@@ -44,8 +37,6 @@ private:
 
   int analyze_atar_hits();
 
-  std::unique_ptr<TChain> chain_;
-  std::unique_ptr<TFile> fout_;
   TTree *t_;
 
   TH1D *h_pi_fake_;
@@ -61,14 +52,6 @@ private:
 
   std::unique_ptr<PIAnaG4StepDivider> divider_;
   std::unique_ptr<PIAnaHitMerger> merger_;
-
-  PIMCInfo* info_;
-  TClonesArray* track_;
-  TClonesArray* atar_;
-
-  std::string treename_;
-  std::vector<std::string> filenames_;
-  std::vector<std::string> ftreenames_;
 
   // double pi_stop_x_;
   // double pi_stop_y_;
@@ -86,7 +69,6 @@ private:
   Short_t pi_stop_zlayer_;
   Bool_t pi_stop_found_;
 
-  bool initialized_;
 };
 
 #endif

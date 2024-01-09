@@ -1,4 +1,5 @@
 #include "PIAnalyzer.hpp"
+#include "PIAnaEvtBase.hpp"
 #include "PIAnaHit.hpp"
 
 #include "PIAnaPat.hpp"
@@ -35,22 +36,12 @@ void print_hit(const PIAnaHit& hit)
 }
 
 PIAnalyzer::PIAnalyzer(const std::string& treename)
-: treename_(treename), hi_nhits_(0),
+  : PIAnaEvtBase(treename), hi_nhits_(0),
 pi_stop_xstrip_(-1), pi_stop_ystrip_(-1), pi_stop_zlayer_(-1),
-pi_stop_found_(false), initialized_(false)
+pi_stop_found_(false)
 {
-  chain_ = std::make_unique<TChain>(treename.c_str());
-
   divider_ = std::make_unique<PIAnaG4StepDivider>();
   merger_ = std::make_unique<PIAnaHitMerger>();
-
-  info_ = new PIMCInfo();
-  atar_ = new TClonesArray("PIMCAtar");
-  track_ = new TClonesArray("PIMCTrack");
-
-  chain_->SetBranchAddress("info", &info_);
-  chain_->SetBranchAddress("atar", &atar_);
-  chain_->SetBranchAddress("track", &track_);
 
   std::fill_n(hi_xstrip_, NHITS_MAX_, -1);
   std::fill_n(hi_ystrip_, NHITS_MAX_, -1);
@@ -61,33 +52,12 @@ pi_stop_found_(false), initialized_(false)
 
 PIAnalyzer::~PIAnalyzer()
 {
-  delete info_;
-  delete atar_;
-  delete track_;
-}
-
-void PIAnalyzer::add_file(const std::string& f)
-{
-  if (!initialized_) {
-    filenames_.push_back(f);
-  }
-}
-
-void PIAnalyzer::add_friend(const std::string& ftree)
-{
-  if (!initialized_) {
-    ftreenames_.push_back(ftree);
-  }
 }
 
 void PIAnalyzer::begin()
 {
-  for (const auto& ftname : ftreenames_) {
-    chain_->AddFriend(ftname.c_str());
-  }
-
-  for (const auto& fname : filenames_) {
-    chain_->Add(fname.c_str());
+  if (!PIAnaEvtBase::initialized_) {
+    PIAnaEvtBase::initialize();
   }
 
   divider_->step_limit(0.01); // I assume it is in mm
@@ -95,10 +65,8 @@ void PIAnalyzer::begin()
 
   merger_->dt_min(10); // I assum it is in ns
 
-  fout_ = std::make_unique<TFile>("output.root", "recreate");
-
   t_ = new TTree("hi_hits", "hti_hits");
-  t_->SetDirectory(fout_.get());
+  t_->SetDirectory(PIAnaEvtBase::fout_.get());
   t_->Branch("hi_nhits", &hi_nhits_, "hi_nhits/s");
   t_->Branch("hi_xstrip", hi_xstrip_, "hi_xstrip[hi_nhits]/S");
   t_->Branch("hi_ystrip", hi_ystrip_, "hi_ystrip[hi_nhits]/S");
@@ -112,21 +80,21 @@ void PIAnalyzer::begin()
 
   h_pi_all_ = new TH1D("h_pi_hits_all", "h_pi_hits_all;layer id;counts", 50,
                        -0.5, 49.5);
-  h_pi_all_->SetDirectory(fout_.get());
   h_pi_fake_ = new TH1D("h_pi_hits_fake", "h_pi_hits_fake;layer id;counts", 50,
                         -0.5, 49.5);
-  h_pi_fake_->SetDirectory(fout_.get());
-  h_pi_true_ = new TH1D("h_pi_hits_true", "h_pi_hits_true;layer id;counts",
-                        50, -0.5, 49.5);
-  h_pi_true_->SetDirectory(fout_.get());
-
+  h_pi_true_ = new TH1D("h_pi_hits_true", "h_pi_hits_true;layer id;counts", 50,
+                        -0.5, 49.5);
   h_prompt_ = new TH1D("h_prompt", "prompt hits;pdgid;#Hits", 500, -0.5, 495.5);
-  h_prompt_->SetDirectory(fout_.get());
 
-  h_nonprompt_ = new TH1D("h_nonprompt", "nonprompt hits;pdgid;#Hits", 500, -0.5, 495.5);
-  h_nonprompt_->SetDirectory(fout_.get());
+  h_nonprompt_ =
+    new TH1D("h_nonprompt", "nonprompt hits;pdgid;#Hits", 500, -0.5, 495.5);
 
-  initialized_ = true;
+  h_pi_all_->SetDirectory(PIAnaEvtBase::fout_.get());
+  h_pi_fake_->SetDirectory(PIAnaEvtBase::fout_.get());
+  h_pi_true_->SetDirectory(PIAnaEvtBase::fout_.get());
+  h_prompt_->SetDirectory(PIAnaEvtBase::fout_.get());
+  h_nonprompt_->SetDirectory(PIAnaEvtBase::fout_.get());
+
 }
 
 void PIAnalyzer::run()
@@ -252,7 +220,16 @@ int PIAnalyzer::analyze_atar_hits()
   int pi_stop_index = -1;
   for (int j=0; j<atar_->GetEntries(); ++j) {
     auto atar_hit = dynamic_cast<PIMCAtar*>(atar_->At(j));
-
+    if (std::abs(atar_hit->GetPDGID()) == 22) {
+      std::cout << "Event ID " << info_->GetRun() << ":"
+                << info_->GetEvent()
+                << ":"
+                << info_->GetEventID();
+      std::cout << ". Photon with track label " << atar_hit->GetTrackID()
+                << " detected in ATAR. Its energy deposition is "
+                << atar_hit->GetEdep() << " in pxl "
+                << atar_hit->GetPixelID() << ".\n";
+    }
     auto hits = divider_->process_atar_hit(*atar_hit);
     auto merged_hits = merger_->merge(hits);
 

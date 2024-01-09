@@ -17,10 +17,12 @@ find_package(ROOT 6.20 CONFIG REQUIRED)
 # file(GLOB headers ${PIAnaAcceptance_SOURCE_DIR}/include/*.hpp)
 
 add_library(PiAnaAcc SHARED
-                     ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnalyzer.cpp
+  ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnalyzer.cpp
+  ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaEvtBase.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaHit.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaPat.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnalyzer.hpp
+                     ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaEvtBase.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
                      ${PIONEER_LIB_SOURCE_DIR}/include/PIMCAtar.hh)

@@ -13,6 +13,7 @@
 #pragma link C++ class PIAnaLocCluster+;
 #pragma link C++ class PIAnaPat+;
 
+#pragma link C++ class PIAnaEvtBase+;
 #pragma link C++ class PIAnalyzer+;
 
 #pragma link C++ class std::vector<PIAnaHit>+;
