@@ -18,10 +18,12 @@ find_package(ROOT 6.20 CONFIG REQUIRED)
 
 add_library(PiAnaAcc SHARED
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnalyzer.cpp
+  ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaAtarPho.cpp
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaEvtBase.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaHit.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaPat.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnalyzer.hpp
+                     ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAtarPho.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaEvtBase.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
@@ -32,7 +34,10 @@ target_include_directories(PiAnaAcc PUBLIC include
 
 target_link_libraries(PiAnaAcc PUBLIC PiRootDict ROOT::Core)
 
-root_generate_dictionary(G__PiAnaAcc  ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnalyzer.hpp ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
+root_generate_dictionary(G__PiAnaAcc ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnalyzer.hpp
+  ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAtarPho.hpp
+  ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaEvtBase.hpp
+  ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
                          MODULE PiAnaAcc LINKDEF ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAcc_linkdef.h)
 
 

@@ -66,6 +66,34 @@ void PIAnaEvtBase::add_friend(const std::string& ftree)
   }
 }
 
+void PIAnaEvtBase::filter(const std::string &filterstr) {
+  if (initialized_) {
+    std::cerr << "[ERROR] " << filterstr
+              << " is not set. PIAnaEvtBase::filter()"
+                 " must be called before initialization.\n";
+    return;
+  }
+  int run = -1, event = -1, eventid = -1;
+  std::string::size_type i = 0;
+  std::string::size_type j = filterstr.find(":");
+  if (j == std::string::npos) {
+    return;
+  };
+  run = std::stoi(filterstr.substr(i, j));
+  i = j + 1;
+  j = filterstr.find(":", i);
+  if (j == std::string::npos) {
+    return;
+  };
+  event = std::stoi(filterstr.substr(i, j));
+  i = j+1;
+  eventid = std::stoi(filterstr.substr(i, filterstr.size()));
+
+  select_event_id_.event_id(run, event, eventid);
+  std::cout << "[INFO] Setting event ID as " << run << ":"
+              << event << ":" << eventid << ".\n";
+}
+
 void PIAnaEvtBase::initialize() {
   initialized_ = true;
   for (const auto& ftname : ftreenames_) {
