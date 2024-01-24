@@ -1,4 +1,4 @@
-/*
+/**
   Hit
  */
 #ifndef __PI_ANA_HIT__
