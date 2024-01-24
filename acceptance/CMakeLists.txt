@@ -40,6 +40,7 @@ root_generate_dictionary(G__PiAnaAcc ${PIAnaAcceptance_SOURCE_DIR}/include/PIAna
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
                          MODULE PiAnaAcc LINKDEF ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAcc_linkdef.h)
 
+add_subdirectory(test)
 
 install(TARGETS PiAnaAcc DESTINATION lib)
 install(FILES
