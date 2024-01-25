@@ -49,8 +49,9 @@ nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
   std::vector<nanoflann::ResultItem<IndexType, double>>
   get_closest_index(Point &p, double radius);
 
-  std::map<const PIAnaHit *, IndicesType>
+  std::map<const PIAnaHit *, std::pair<IndexType, IndicesType > >
   get_hit_indices_map(const double radius);
+
 
 protected:
   // std::vector<nanoflann::ResultItem<size_t, double>>
@@ -59,7 +60,6 @@ protected:
   PIPointCloud<double, PIAnaHit> cloud_;
   my_kd_tree_t *index;
 
-  std::map<const PIAnaHit *,IndicesType> map_hit_indices_;
-
+  std::map<const PIAnaHit *, std::pair<IndexType, IndicesType> > map_hit_indices_;
 };
 #endif

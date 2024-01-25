@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <stdexcept>
 
 #include "PIAnaPointCloud.hpp"
 #include "PIPointCloud.hpp"
@@ -16,6 +17,13 @@ PIAnaPointCloud::~PIAnaPointCloud() {
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L225
 void PIAnaPointCloud::AddPoint(const PIAnaHit *hit)
 {
+
+  auto it = map_hit_indices_.find(hit);
+  if (it != map_hit_indices_.end()) {
+    return;
+  }
+
+
   PIPointCloud<double, PIAnaHit>::Point point;
   // location
   point.x = hit->rec_x();
@@ -31,10 +39,7 @@ void PIAnaPointCloud::AddPoint(const PIAnaHit *hit)
   point.hit = hit;
   cloud_.pts.push_back(point);
 
-  auto it = map_hit_indices_.find(hit);
-  if (it == map_hit_indices_.end()) {
-    map_hit_indices_[hit] = {};
-  }
+  map_hit_indices_[hit] = std::make_pair(point.index, IndicesType{});
 }
 
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L338
@@ -91,16 +96,17 @@ std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
   return ret_matches;
 }
 
-std::map<const PIAnaHit *, PIAnaPointCloud::IndicesType>
+std::map < const PIAnaHit *, std::pair < PIAnaPointCloud::IndexType,
+                                         PIAnaPointCloud::IndicesType > >
 PIAnaPointCloud::get_hit_indices_map(const double radius)
 {
   for (auto it = map_hit_indices_.begin();
        it != map_hit_indices_.end(); ++it) {
-    it->second.clear();
+    it->second.second.clear();
     Point p{it->first->rec_x(), it->first->rec_y(), it->first->rec_z()};
     auto indices = get_closest_index(p, radius);
     for (const auto &index : indices) {
-      it->second.push_back(index.first);
+      it->second.second.push_back(index.first);
     }
   }
   return map_hit_indices_;
@@ -124,8 +130,10 @@ std::ostream& operator<<(std::ostream &os, const PIAnaPointCloud &cloud)
       if (it == cloud.map_hit_indices_.end()) {
         os << "NOT FOUND the hit in the map.";
       } else {
-        os << "FOUND the hit in the map. Its associated indices is (";
-        PIAnaPointCloud::IndicesType indices = it->second;
+        PIAnaPointCloud::IndexType index = it->second.first;
+        PIAnaPointCloud::IndicesType indices = it->second.second;
+        os << "FOUND the hit in the map. Its index is " << index
+           << ". Its associated indices are (";
         if (indices.empty()) { os << ")."; }
         for (int i = 0; i < indices.size(); ++i) {
           if (i != indices.size() - 1) {
