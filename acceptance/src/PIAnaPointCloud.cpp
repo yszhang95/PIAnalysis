@@ -14,6 +14,13 @@ PIAnaPointCloud::~PIAnaPointCloud() {
   cloud_.pts.clear();
 }
 
+void PIAnaPointCloud::clear() {
+  if (index)
+    delete index;
+  map_hit_indices_.clear();
+  cloud_.pts.clear();
+}
+
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L225
 void PIAnaPointCloud::AddPoint(const PIAnaHit *hit)
 {

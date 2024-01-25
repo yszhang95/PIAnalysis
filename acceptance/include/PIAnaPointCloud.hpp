@@ -45,6 +45,9 @@ nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
                 object is only added once.
    */
   void AddPoint(const PIAnaHit *hit);
+
+  void clear();
+
   /**
      Build the k-d tree. It must be called before any call of
      1. get_closet_index()
