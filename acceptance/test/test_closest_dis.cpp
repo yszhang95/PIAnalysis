@@ -39,7 +39,7 @@ int main()
   // helper for printing out
   auto print_search_by_radius =
       [](const PIAnaHit &hit, double raidus,
-         const std::vector<nanoflann::ResultItem<size_t, double>> &pts) {
+         const std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>> &pts) {
         std::cout << "The closest points within raidus " << raidus << " to ("
                   << hit.rec_x() << ", " << hit.rec_y() << ", " << hit.rec_z()
                   << ") have (index, distance): ";
@@ -50,7 +50,7 @@ int main()
       };
   auto print_search_by_N =
       [](const PIAnaHit &hit, int N,
-         const std::vector<nanoflann::ResultItem<size_t, double>> &pts) {
+         const std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>> &pts) {
         std::cout << "The "<< N << " closest points"
                 << " to (" << hit.rec_x() << ", "
                 << hit.rec_y() << ", "

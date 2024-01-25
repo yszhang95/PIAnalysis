@@ -19,11 +19,13 @@ class PIAnaPointCloud
 {
 public:
   typedef WCP::D3Vector<double> Point;
+  typedef uint32_t IndexType;
+  typedef std::vector<IndexType> IndicesType;
 
   typedef nanoflann::KDTreeSingleIndexAdaptor<
 nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
   PIPointCloud<double, PIAnaHit>,
-  3 /* dim */, size_t
+  3 /* dim */, IndexType
   > my_kd_tree_t;
 
   PIAnaPointCloud();
@@ -42,12 +44,12 @@ nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
 
   size_t get_num_points() { return cloud_.pts.size(); }
 
-  std::vector<nanoflann::ResultItem<size_t, double>>
+  std::vector<nanoflann::ResultItem<IndexType, double>>
   get_closest_index(Point &p, int N);
-  std::vector<nanoflann::ResultItem<size_t, double>>
+  std::vector<nanoflann::ResultItem<IndexType, double>>
   get_closest_index(Point &p, double radius);
 
-  std::map<const PIAnaHit *, std::vector<int>>
+  std::map<const PIAnaHit *, IndicesType>
   get_hit_indices_map(const double radius);
 
 protected:
@@ -57,7 +59,7 @@ protected:
   PIPointCloud<double, PIAnaHit> cloud_;
   my_kd_tree_t *index;
 
-  std::map<const PIAnaHit *, std::vector<int>> map_hit_indices_;
+  std::map<const PIAnaHit *,IndicesType> map_hit_indices_;
 
 };
 #endif

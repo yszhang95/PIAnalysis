@@ -49,11 +49,11 @@ void PIAnaPointCloud::build_kdtree_index()
   index->buildIndex();
 }
 
-std::vector<nanoflann::ResultItem<size_t, double>>
+std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
 PIAnaPointCloud::get_closest_index(Point &p, int N)
 
 {
-  std::vector<size_t> ret_index(N);
+  IndicesType ret_index(N);
   std::vector<double> out_dist_sqr(N);
 
   double query_pt[3];
@@ -65,7 +65,7 @@ PIAnaPointCloud::get_closest_index(Point &p, int N)
   ret_index.resize(N);
   out_dist_sqr.resize(N);
 
-  std::vector<nanoflann::ResultItem<size_t,double > > results(N);
+  std::vector<nanoflann::ResultItem<IndexType,double > > results(N);
   for(size_t i=0; i!=N; i++){
     results.at(i) =
       nanoflann::ResultItem{ret_index.at(i), out_dist_sqr.at(i)};
@@ -74,7 +74,7 @@ PIAnaPointCloud::get_closest_index(Point &p, int N)
   return results;
 }
 
-std::vector<nanoflann::ResultItem<size_t, double>>
+std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
     PIAnaPointCloud::get_closest_index(Point& p, double search_radius)
 {
   double query_pt[3];
@@ -82,7 +82,7 @@ std::vector<nanoflann::ResultItem<size_t, double>>
   query_pt[1] = p.y;
   query_pt[2] = p.z;
   std::vector < nanoflann::ResultItem <
-    size_t, double>>
+    PIAnaPointCloud::IndexType, double>>
     ret_matches;
   nanoflann::SearchParameters params;
   const size_t nMatches =
@@ -91,7 +91,7 @@ std::vector<nanoflann::ResultItem<size_t, double>>
   return ret_matches;
 }
 
-std::map<const PIAnaHit *, std::vector<int>>
+std::map<const PIAnaHit *, PIAnaPointCloud::IndicesType>
 PIAnaPointCloud::get_hit_indices_map(const double radius)
 {
   for (auto it = map_hit_indices_.begin();
@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream &os, const PIAnaPointCloud &cloud)
         os << "NOT FOUND the hit in the map.";
       } else {
         os << "FOUND the hit in the map. Its associated indices is (";
-        std::vector<int> indices = it->second;
+        PIAnaPointCloud::IndicesType indices = it->second;
         if (indices.empty()) { os << ")."; }
         for (int i = 0; i < indices.size(); ++i) {
           if (i != indices.size() - 1) {
