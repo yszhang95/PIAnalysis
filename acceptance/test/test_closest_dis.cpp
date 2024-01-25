@@ -75,5 +75,10 @@ int main()
   // test get_hit_indices_map
   cloud.get_hit_indices_map(0.15);
   std::cout << cloud << "\n";
+
+  // test get_hit
+  const PIAnaHit *hit = cloud.get_hit(20);
+  std::cout << "The 20th hit is located at (" << hit->rec_x() << ", "
+            << hit->rec_y() << ", " << hit->rec_z() << ").\n";
   return 0;
 }

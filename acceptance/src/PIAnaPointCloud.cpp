@@ -23,7 +23,6 @@ void PIAnaPointCloud::AddPoint(const PIAnaHit *hit)
     return;
   }
 
-
   PIPointCloud<double, PIAnaHit>::Point point;
   // location
   point.x = hit->rec_x();
@@ -112,6 +111,9 @@ PIAnaPointCloud::get_hit_indices_map(const double radius)
   return map_hit_indices_;
 }
 
+const PIAnaHit *PIAnaPointCloud::get_hit(const IndexType idx) const {
+  return cloud_.get_hit(idx);
+}
 
 std::ostream& operator<<(std::ostream &os, const PIAnaPointCloud &cloud)
 {

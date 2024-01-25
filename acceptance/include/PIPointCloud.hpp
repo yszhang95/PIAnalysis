@@ -15,7 +15,7 @@ template<typename T, typename Hit>
     std::vector<Point> pts;
     inline size_t kdtree_get_point_count()
       const { return pts.size(); }
-    inline Hit* get_hit(const size_t idx) const
+    inline const Hit* get_hit(const size_t idx) const
     { return pts[idx].hit; }
 
     inline T kdtree_get_pt(const size_t idx, int dim) const
