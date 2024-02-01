@@ -29,13 +29,17 @@ public:
   typedef std::vector<IndexType> IndicesType;
 
   typedef nanoflann::KDTreeSingleIndexAdaptor<
-nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
-  PIPointCloud<double, PIAnaHit>,
-  3 /* dim */, IndexType
-  > my_kd_tree_t;
+      nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit>>,
+      PIPointCloud<double, PIAnaHit>, 3 /* dim */, IndexType>
+      my_kd_tree_3d_t;
 
-  PIAnaPointCloud();
-  ~PIAnaPointCloud();
+  typedef nanoflann::KDTreeSingleIndexAdaptor<
+    nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
+    PIPointCloud<double, PIAnaHit>,
+    1 /* dim */, IndexType
+    > my_kd_tree_1d_t;
+
+  virtual ~PIAnaPointCloud();
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const PIAnaPointCloud&);
@@ -44,23 +48,23 @@ nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
      @param hit It is a pointer to the hit object. Pointers to the same
                 object is only added once.
    */
-  void AddPoint(const PIAnaHit *hit);
+  virtual void AddPoint(const PIAnaHit *hit) = 0;
 
-  void clear();
+  virtual void clear();
 
   /**
      Build the k-d tree. It must be called before any call of
      1. get_closet_index()
      2. get_hit_indices_map()
    */
-  void build_kdtree_index();
+  virtual void build_kdtree_index() = 0;
 
   size_t get_num_points() { return cloud_.pts.size(); }
 
-  std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, int N);
-  std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, double radius);
+  virtual std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, int N) = 0;
+  virtual std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, double radius) = 0;
 
   /**
      Create a map between a hit, its index, its closest indices.
@@ -78,12 +82,52 @@ nanoflann::L2_Simple_Adaptor<double, PIPointCloud<double, PIAnaHit> > ,
   const PIAnaHit* get_hit(const IndexType idx) const;
 
 protected:
-  // std::vector<nanoflann::ResultItem<size_t, double>>
-  // get_closest_index(PIPointCloud<double, PIAnaHit>::Point p,
-  //                     double radius);
-  PIPointCloud<double, PIAnaHit> cloud_;
-  my_kd_tree_t *index;
+  PIAnaPointCloud();
+  virtual Point get_point(const PIAnaHit *) = 0;
+  void AddPoint(const Point &p, const PIAnaHit *hit);
 
-  std::map<const PIAnaHit *, std::pair<IndexType, IndicesType> > map_hit_indices_;
+  PIPointCloud<double, PIAnaHit> cloud_;
+  std::map < const PIAnaHit *,
+             std::pair<IndexType, IndicesType> > map_hit_indices_;
+};
+
+class PIAnaPointCloudXYZ : public PIAnaPointCloud
+{
+public:
+  PIAnaPointCloudXYZ();
+  ~PIAnaPointCloudXYZ();
+  void clear() override;
+  void build_kdtree_index() override;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, int N) override;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, double radius) override;
+  void AddPoint(const PIAnaHit *hit) override;
+
+protected:
+  Point get_point(const PIAnaHit*) override;
+
+private:
+  my_kd_tree_3d_t *index;
+};
+
+class PIAnaPointCloudT : public PIAnaPointCloud
+{
+public:
+  PIAnaPointCloudT();
+  ~PIAnaPointCloudT();
+  void clear() override;
+  void build_kdtree_index() override;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, int N) override;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, double radius) override;
+  void AddPoint(const PIAnaHit *hit) override;
+
+protected:
+  Point get_point(const PIAnaHit*) override;
+
+private:
+  my_kd_tree_1d_t *index;
 };
 #endif

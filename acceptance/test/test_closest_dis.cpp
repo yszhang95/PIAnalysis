@@ -10,6 +10,8 @@ std::vector<PIAnaHit> create_vector() {
   std::vector<float> xtemp, ytemp, ztemp, dedxtemp;
   for (int i = 0; i < 30; ++i) {
     auto hit = PIAnaHit();
+    hit.dt(0.001);
+    hit.post_t((i+1)*0.001);
     hit.x(i * 0.001);
     hit.y(i * 0.001);
     hit.z(i * 0.12);
@@ -25,16 +27,22 @@ std::vector<PIAnaHit> create_vector() {
 int main()
 {
   auto hits = create_vector();
-  PIAnaPointCloud cloud;
-  std::cout << cloud;
+  PIAnaPointCloudXYZ cloud;
+  PIAnaPointCloudT cloud2;
+  std::cout << "PointCloudXYZ\n" << cloud;
+  std::cout << "PointCloudT\n" << cloud2;
   // test AddPoint
   for (const auto &hit : hits) {
     cloud.AddPoint(&hit);
+    cloud2.AddPoint(&hit);
     // std::cout << cloud;
   }
-  std::cout << cloud;
+  std::cout << "PointCloudXYZ\n" << cloud;
+  std::cout << "PointCloudT\n" << cloud2;
+
   // build k-d tree
   cloud.build_kdtree_index();
+  cloud2.build_kdtree_index();
   // study the nearest points in the third point
   // helper for printing out
   auto print_search_by_radius =
@@ -75,6 +83,8 @@ int main()
   // test get_hit_indices_map
   cloud.get_hit_indices_map(0.15);
   std::cout << cloud << "\n";
+  cloud2.get_hit_indices_map(0.00199);
+  std::cout << cloud2 << "\n";
 
   // test get_hit
   const PIAnaHit *hit = cloud.get_hit(20);

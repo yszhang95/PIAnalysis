@@ -4,8 +4,16 @@
 #include "PIAnaPointCloud.hpp"
 #include "PIAnaGraph.hpp"
 
-PIAnaGraph::PIAnaGraph() {
-  cloud_ = std::make_unique<PIAnaPointCloud>();
+PIAnaGraph::PIAnaGraph(const unsigned int dim) {
+  if (dim == 3) {
+    cloud_ = std::make_unique<PIAnaPointCloudXYZ>();
+  } else if (dim == 1) {
+    cloud_ = std::make_unique<PIAnaPointCloudT>();
+  } else {
+    std::string msg = "[ERROR] Cannot create a PIAnaGraph with dimension "
+      + std::to_string(dim);
+    throw std::logic_error(msg);
+  }
   graph_ = std::make_unique<Graph>();
 }
 

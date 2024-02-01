@@ -17,7 +17,7 @@ public:
   typedef PIAnaPointCloud::IndexType IndexType;
   typedef PIAnaPointCloud::IndicesType IndicesType;
 
-  PIAnaGraph();
+  PIAnaGraph(const unsigned int);
   ~PIAnaGraph();
   void AddPoint(const PIAnaHit *);
   void clear();
