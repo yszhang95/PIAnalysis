@@ -14,7 +14,7 @@ PIAnaGraph::PIAnaGraph(const unsigned int dim) {
       + std::to_string(dim);
     throw std::logic_error(msg);
   }
-  graph_ = std::make_unique<Graph>();
+  graph_ = std::make_unique<PIGraph>();
 }
 
 PIAnaGraph::~PIAnaGraph() {}
@@ -25,13 +25,13 @@ void PIAnaGraph::AddPoint(const PIAnaHit *hit) {
 
 void PIAnaGraph::clear() {
   cloud_->clear();
-  graph_.reset(new Graph());
+  graph_.reset(new PIGraph());
 }
 
 std::map<int, PIAnaGraph::IndicesType>
 PIAnaGraph::connected_components(const double radius) {
   std::map<int, IndicesType> results;
-  graph_.reset(new Graph());
+  graph_.reset(new PIGraph());
   cloud_->build_kdtree_index();
   auto map_hit_indices = cloud_->get_hit_indices_map(radius);
   for (const auto &pair_hit_indices : map_hit_indices) {

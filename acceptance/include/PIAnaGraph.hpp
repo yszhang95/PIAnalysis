@@ -13,11 +13,17 @@ class PIAnaGraph
 {
 public:
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>
-      Graph;
+      PIGraph;
   typedef PIAnaPointCloud::IndexType IndexType;
   typedef PIAnaPointCloud::IndicesType IndicesType;
 
-  PIAnaGraph(const unsigned int);
+  /**
+   * A helper class to create the graph for connected points.
+   * Points are connected by timing, (dim=1) or position (dim=3).
+   * An **enumeration** class may be used in the future.
+   * @param dim it is the dimension of the point.
+  */
+  PIAnaGraph(const unsigned int dim);
   ~PIAnaGraph();
   void AddPoint(const PIAnaHit *);
   void clear();
@@ -26,6 +32,6 @@ public:
 
 private:
   std::unique_ptr<PIAnaPointCloud> cloud_;
-  std::unique_ptr<Graph> graph_;
+  std::unique_ptr<PIGraph> graph_;
 };
 #endif
