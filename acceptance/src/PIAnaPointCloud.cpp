@@ -109,34 +109,21 @@ std::ostream& operator<<(std::ostream &os, const PIAnaPointCloud &cloud)
   return os;
 }
 
-// PIAnaPointCloudXYZ
-PIAnaPointCloudXYZ::PIAnaPointCloudXYZ() { index = nullptr; }
+// PIAnaPointCloud3D
+PIAnaPointCloud3D::PIAnaPointCloud3D() : index(nullptr) {}
 
-PIAnaPointCloudXYZ::~PIAnaPointCloudXYZ() {
+PIAnaPointCloud3D::~PIAnaPointCloud3D() {
   if (index)
     delete index;
 }
 
-void PIAnaPointCloudXYZ::clear() {
+void PIAnaPointCloud3D::clear() {
   if (index) delete index;
   PIAnaPointCloud::clear();
 }
 
-PIAnaPointCloud::Point
-PIAnaPointCloudXYZ::get_point(const PIAnaHit* hit) {
-  return Point{hit->rec_x(), hit->rec_y(), hit->rec_z()};
-}
-
-// https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L225
-void
-PIAnaPointCloudXYZ::AddPoint(const PIAnaHit *hit)
-{
-  Point point = get_point(hit);
-  PIAnaPointCloud::AddPoint(point, hit);
-}
-
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L338
-void PIAnaPointCloudXYZ::build_kdtree_index()
+void PIAnaPointCloud3D::build_kdtree_index()
 {
   if (index){
     delete index;
@@ -148,7 +135,7 @@ void PIAnaPointCloudXYZ::build_kdtree_index()
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-PIAnaPointCloudXYZ::get_closest_index(Point &p, int N)
+PIAnaPointCloud3D::get_closest_index(Point &p, int N)
 {
   IndicesType ret_index(N);
   std::vector<double> out_dist_sqr(N);
@@ -172,7 +159,7 @@ PIAnaPointCloudXYZ::get_closest_index(Point &p, int N)
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-    PIAnaPointCloudXYZ::get_closest_index(Point& p, double search_radius)
+    PIAnaPointCloud3D::get_closest_index(Point& p, double search_radius)
 {
   double query_pt[3];
   query_pt[0] = p.x;
@@ -188,33 +175,39 @@ std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
   return ret_matches;
 }
 
-// PIAnaPointCloudT
-PIAnaPointCloudT::PIAnaPointCloudT() { index = nullptr; }
+// PIAnaPointCloudXYZ
+PIAnaPointCloudXYZ::PIAnaPointCloudXYZ() {}
+PIAnaPointCloudXYZ::~PIAnaPointCloudXYZ() {}
 
-PIAnaPointCloudT::~PIAnaPointCloudT() {
+// https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L225
+void
+PIAnaPointCloudXYZ::AddPoint(const PIAnaHit *hit)
+{
+  Point point = this->get_point(hit);
+  PIAnaPointCloud::AddPoint(point, hit);
+}
+
+PIAnaPointCloud::Point
+PIAnaPointCloudXYZ::get_point(const PIAnaHit* hit)
+{
+  return Point{hit->rec_x(), hit->rec_y(), hit->rec_z()};
+}
+
+// PIAnaPointCloud1D
+PIAnaPointCloud1D::PIAnaPointCloud1D() : index(nullptr) {}
+
+PIAnaPointCloud1D::~PIAnaPointCloud1D() {
   if (index)
     delete index;
 }
 
-PIAnaPointCloud::Point
-PIAnaPointCloudT::get_point(const PIAnaHit* hit) {
-  return Point{hit->t(), 0, 0};
-}
-
-void
-PIAnaPointCloudT::AddPoint(const PIAnaHit *hit)
-{
-  Point point = get_point(hit);
-  PIAnaPointCloud::AddPoint(point, hit);
-}
-
-void PIAnaPointCloudT::clear() {
+void PIAnaPointCloud1D::clear() {
   if (index) delete index;
   PIAnaPointCloud::clear();
 }
 
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L338
-void PIAnaPointCloudT::build_kdtree_index()
+void PIAnaPointCloud1D::build_kdtree_index()
 {
   if (index) {
     delete index;
@@ -226,7 +219,7 @@ void PIAnaPointCloudT::build_kdtree_index()
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-PIAnaPointCloudT::get_closest_index(Point &p, int N)
+PIAnaPointCloud1D::get_closest_index(Point &p, int N)
 {
   IndicesType ret_index(N);
   std::vector<double> out_dist_sqr(N);
@@ -248,7 +241,7 @@ PIAnaPointCloudT::get_closest_index(Point &p, int N)
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-    PIAnaPointCloudT::get_closest_index(Point& p, double search_radius)
+    PIAnaPointCloud1D::get_closest_index(Point& p, double search_radius)
 {
   double query_pt[1];
   query_pt[0] = p.x;
@@ -260,4 +253,20 @@ std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
       index->radiusSearch(&query_pt[0], search_radius * search_radius,
                           ret_matches, params);
   return ret_matches;
+}
+
+// PIAnaPointCloudT
+PIAnaPointCloudT::PIAnaPointCloudT() {}
+PIAnaPointCloudT::~PIAnaPointCloudT() {}
+
+PIAnaPointCloud::Point
+PIAnaPointCloudT::get_point(const PIAnaHit* hit) {
+  return Point{hit->t(), 0, 0};
+}
+
+void
+PIAnaPointCloudT::AddPoint(const PIAnaHit *hit)
+{
+  Point point = get_point(hit);
+  PIAnaPointCloud::AddPoint(point, hit);
 }

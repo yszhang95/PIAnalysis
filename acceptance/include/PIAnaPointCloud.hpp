@@ -87,47 +87,112 @@ protected:
   void AddPoint(const Point &p, const PIAnaHit *hit);
 
   PIPointCloud<double, PIAnaHit> cloud_;
-  std::map < const PIAnaHit *,
-             std::pair<IndexType, IndicesType> > map_hit_indices_;
-};
-
-class PIAnaPointCloudXYZ : public PIAnaPointCloud
-{
-public:
-  PIAnaPointCloudXYZ();
-  ~PIAnaPointCloudXYZ();
-  void clear() override;
-  void build_kdtree_index() override;
-  std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, int N) override;
-  std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, double radius) override;
-  void AddPoint(const PIAnaHit *hit) override;
-
-protected:
-  Point get_point(const PIAnaHit*) override;
+  std::map<const PIAnaHit *, std::pair<IndexType, IndicesType>>
+      map_hit_indices_;
 
 private:
-  my_kd_tree_3d_t *index;
+  // copy constructor
+  PIAnaPointCloud(PIAnaPointCloud const &other) = delete;
+  // copy assignment
+  PIAnaPointCloud &operator=(PIAnaPointCloud const &other) = delete;
+  // move constructor
+  PIAnaPointCloud(PIAnaPointCloud&& other) = delete;
 };
 
-class PIAnaPointCloudT : public PIAnaPointCloud
+class PIAnaPointCloud3D : public PIAnaPointCloud
+{
+public:
+  ~PIAnaPointCloud3D();
+
+  void build_kdtree_index() final;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, int N) final;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, double radius) final;
+
+  void clear() final;
+
+  void AddPoint(const PIAnaHit *hit) override = 0;
+
+protected:
+  PIAnaPointCloud3D();
+  Point get_point(const PIAnaHit*) override = 0;
+  my_kd_tree_3d_t *index;
+
+private:
+  // copy constructor
+  PIAnaPointCloud3D(PIAnaPointCloud3D const &other) = delete;
+  // copy assignment
+  PIAnaPointCloud3D &operator=(PIAnaPointCloud3D const &other) = delete;
+  // move constructor
+  PIAnaPointCloud3D(PIAnaPointCloud3D&& other) = delete;
+};
+
+class PIAnaPointCloudXYZ : public PIAnaPointCloud3D
+{
+public:
+  explicit PIAnaPointCloudXYZ();
+  ~PIAnaPointCloudXYZ();
+  void AddPoint(const PIAnaHit *hit) final;
+
+protected:
+  Point get_point(const PIAnaHit*) final;
+
+private:
+  // copy constructor
+  PIAnaPointCloudXYZ(PIAnaPointCloudXYZ const &other) = delete;
+  // copy assignment
+  PIAnaPointCloudXYZ &operator=(PIAnaPointCloudXYZ const &other) = delete;
+  // move constructor
+  PIAnaPointCloudXYZ(PIAnaPointCloudXYZ&& other) = delete;
+};
+
+class PIAnaPointCloud1D : public PIAnaPointCloud
+{
+public:
+  ~PIAnaPointCloud1D();
+
+  void build_kdtree_index() final;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, int N) final;
+  std::vector<nanoflann::ResultItem<IndexType, double>>
+  get_closest_index(Point &p, double radius) final;
+
+  void clear() final;
+
+  void AddPoint(const PIAnaHit *hit) override = 0;
+
+protected:
+  PIAnaPointCloud1D();
+  Point get_point(const PIAnaHit*) override = 0;
+  my_kd_tree_1d_t *index;
+
+private:
+  // copy constructor
+  PIAnaPointCloud1D(PIAnaPointCloud1D const &other) = delete;
+  // copy assignment
+  PIAnaPointCloud1D &operator=(PIAnaPointCloud1D const &other) = delete;
+  // move constructor
+  PIAnaPointCloud1D(PIAnaPointCloud1D&& other) = delete;
+};
+
+class PIAnaPointCloudT : public PIAnaPointCloud1D
 {
 public:
   PIAnaPointCloudT();
   ~PIAnaPointCloudT();
-  void clear() override;
-  void build_kdtree_index() override;
-  std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, int N) override;
-  std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, double radius) override;
+
   void AddPoint(const PIAnaHit *hit) override;
 
 protected:
-  Point get_point(const PIAnaHit*) override;
+  Point get_point(const PIAnaHit *) override;
 
 private:
-  my_kd_tree_1d_t *index;
+  // copy constructor
+  PIAnaPointCloudT(PIAnaPointCloudT const &other) = delete;
+  // copy assignment
+  PIAnaPointCloudT &operator=(PIAnaPointCloudT const &other) = delete;
+  // move constructor
+  PIAnaPointCloudT(PIAnaPointCloudT&& other) = delete;
 };
 #endif
