@@ -96,7 +96,9 @@ private:
   // copy assignment
   PIAnaPointCloud &operator=(PIAnaPointCloud const &other) = delete;
   // move constructor
-  PIAnaPointCloud(PIAnaPointCloud&& other) = delete;
+  PIAnaPointCloud(PIAnaPointCloud &&other) = delete;
+  // move assignment
+  PIAnaPointCloud& operator=(PIAnaPointCloud &&other) = delete;
 };
 
 class PIAnaPointCloud3D : public PIAnaPointCloud
@@ -125,7 +127,9 @@ private:
   // copy assignment
   PIAnaPointCloud3D &operator=(PIAnaPointCloud3D const &other) = delete;
   // move constructor
-  PIAnaPointCloud3D(PIAnaPointCloud3D&& other) = delete;
+  PIAnaPointCloud3D(PIAnaPointCloud3D &&other) = delete;
+  // move assignment
+  PIAnaPointCloud3D& operator=(PIAnaPointCloud3D &&other) = delete;
 };
 
 class PIAnaPointCloudXYZ : public PIAnaPointCloud3D
@@ -144,7 +148,9 @@ private:
   // copy assignment
   PIAnaPointCloudXYZ &operator=(PIAnaPointCloudXYZ const &other) = delete;
   // move constructor
-  PIAnaPointCloudXYZ(PIAnaPointCloudXYZ&& other) = delete;
+  PIAnaPointCloudXYZ(PIAnaPointCloudXYZ &&other) = delete;
+  // move assignment
+  PIAnaPointCloudXYZ& operator=(PIAnaPointCloudXYZ&& other) = delete;
 };
 
 class PIAnaPointCloud1D : public PIAnaPointCloud
@@ -173,7 +179,9 @@ private:
   // copy assignment
   PIAnaPointCloud1D &operator=(PIAnaPointCloud1D const &other) = delete;
   // move constructor
-  PIAnaPointCloud1D(PIAnaPointCloud1D&& other) = delete;
+  PIAnaPointCloud1D(PIAnaPointCloud1D &&other) = delete;
+  // move assignment
+  PIAnaPointCloud1D &operator=(PIAnaPointCloud1D &&other) = delete;
 };
 
 class PIAnaPointCloudT : public PIAnaPointCloud1D
@@ -193,6 +201,8 @@ private:
   // copy assignment
   PIAnaPointCloudT &operator=(PIAnaPointCloudT const &other) = delete;
   // move constructor
-  PIAnaPointCloudT(PIAnaPointCloudT&& other) = delete;
+  PIAnaPointCloudT(PIAnaPointCloudT &&other) = delete;
+  // move assignment
+  PIAnaPointCloudT &operator=(PIAnaPointCloudT &&other) = delete;
 };
 #endif
