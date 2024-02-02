@@ -35,10 +35,14 @@ std::vector<PIAnaHit> create_vector() {
 int main() {
   const auto hits = create_vector();
   PIAnaGraph graph_xyz(3);
-  PIAnaGraph graph_t(3);
-  for (const auto &hit : hits) {
+  PIAnaGraph graph_t(1);
+  for (size_t idx = 0; idx != hits.size(); ++idx) {
+    const auto& hit = hits.at(idx);
     graph_xyz.AddPoint(&hit);
     graph_t.AddPoint(&hit);
+    std::cout << "Added point (idx, t, x, y, z) = (" << idx << ", " << hit.t()
+              << ", "
+              << hit.rec_x() << ", " << hit.rec_y() << ", " << hit.rec_z() << ").\n";
   }
   auto connected_components_xyz = graph_xyz.connected_components(0.15);
   auto connected_components_t = graph_t.connected_components(0.15);
@@ -59,6 +63,24 @@ int main() {
     std::cout << ").\n";
   }
   std::cout << "\n";
+
+  std::cout << "Checking connected point to reference point\n";
+  std::cout << "Reference XYZ=(0.005, 0.005, 0.6), radius=0.15\n";
+  PIAnaPointCloud::Point  xyz0 {0.005, 0.005, 0.6};
+  auto connected_to_ref_xyz = graph_xyz.connected_components(xyz0, 0.15);
+  std::cout << "Connected components are ( ";
+  for (const auto idx : connected_to_ref_xyz) {
+    std::cout << idx << " ";
+  }
+  std::cout << ").\n";
+  std::cout << "Reference T=5.002, radius = 4.8\n";
+  PIAnaPointCloud::Point t0{5.002, 0, 0};
+  auto connected_to_ref_t = graph_t.connected_components(t0, 4.9);
+  std::cout << "Connected components are ( ";
+  for (const auto idx : connected_to_ref_t) {
+    std::cout << idx << " ";
+  }
+  std::cout << ").\n";
 
   return 0;
 }

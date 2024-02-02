@@ -62,9 +62,9 @@ public:
   size_t get_num_points() { return cloud_.pts.size(); }
 
   virtual std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, int N) = 0;
+  get_closest_index(const Point &p, int N) = 0;
   virtual std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, double radius) = 0;
+  get_closest_index(const Point &p, double radius) = 0;
 
   /**
      Create a map between a hit, its index, its closest indices.
@@ -106,9 +106,9 @@ public:
 
   void build_kdtree_index() final;
   std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, int N) final;
+  get_closest_index(const Point &p, int N) final;
   std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, double radius) final;
+  get_closest_index(const Point &p, double radius) final;
 
   void clear() final;
 
@@ -154,9 +154,9 @@ public:
 
   void build_kdtree_index() final;
   std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, int N) final;
+  get_closest_index(const Point &p, int N) final;
   std::vector<nanoflann::ResultItem<IndexType, double>>
-  get_closest_index(Point &p, double radius) final;
+  get_closest_index(const Point &p, double radius) final;
 
   void clear() final;
 

@@ -135,7 +135,7 @@ void PIAnaPointCloud3D::build_kdtree_index()
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-PIAnaPointCloud3D::get_closest_index(Point &p, int N)
+PIAnaPointCloud3D::get_closest_index(const Point &p, int N)
 {
   IndicesType ret_index(N);
   std::vector<double> out_dist_sqr(N);
@@ -159,7 +159,7 @@ PIAnaPointCloud3D::get_closest_index(Point &p, int N)
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-    PIAnaPointCloud3D::get_closest_index(Point& p, double search_radius)
+    PIAnaPointCloud3D::get_closest_index(const Point& p, double search_radius)
 {
   double query_pt[3];
   query_pt[0] = p.x;
@@ -219,7 +219,7 @@ void PIAnaPointCloud1D::build_kdtree_index()
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-PIAnaPointCloud1D::get_closest_index(Point &p, int N)
+PIAnaPointCloud1D::get_closest_index(const Point &p, int N)
 {
   IndicesType ret_index(N);
   std::vector<double> out_dist_sqr(N);
@@ -241,7 +241,7 @@ PIAnaPointCloud1D::get_closest_index(Point &p, int N)
 }
 
 std::vector<nanoflann::ResultItem<PIAnaPointCloud::IndexType, double>>
-    PIAnaPointCloud1D::get_closest_index(Point& p, double search_radius)
+    PIAnaPointCloud1D::get_closest_index(const Point& p, double search_radius)
 {
   double query_pt[1];
   query_pt[0] = p.x;

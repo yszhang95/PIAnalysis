@@ -22,13 +22,28 @@ public:
    * Points are connected by timing, (dim=1) or position (dim=3).
    * An **enumeration** class may be used in the future.
    * @param dim it is the dimension of the point.
-  */
+   */
   PIAnaGraph(const unsigned int dim);
   ~PIAnaGraph();
   void AddPoint(const PIAnaHit *);
   void clear();
-  std::map<int, IndicesType>
-  connected_components(const double radius);
+  /**
+   * @param radius The search radius. Hits are connected
+   * if their distance is within the raidus.
+   * @return The map between i-th connected component and the indices
+   * for its content in the point cloud.
+   */
+  std::map<int, IndicesType> connected_components(const double radius);
+
+  /**
+   * Find out hits connected to the reference point given the search radius.
+   * @param point Reference point for search within radius.
+   * @param radius Search radius.
+   * @return The collection of indices for connected hits to reference
+   * point in the point cloud.
+   */
+  IndicesType connected_components(const PIAnaPointCloud::Point& point,
+                                   const double radius);
 
 private:
   std::unique_ptr<PIAnaPointCloud> cloud_;
