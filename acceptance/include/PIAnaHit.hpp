@@ -14,6 +14,21 @@
 
 class PIAnaHitMerger;
 class PIAnaHit;
+// strict weak ordering
+// https://en.wikipedia.org/wiki/Weak_ordering#Strict_weak_orderings
+/**
+ * Strict weak ordering implementation for hit pointers.
+ * Order hits by (t, rec_z, rec_x, rec_y). t has the highest priority.
+ * The precision of float numbers is not considerd.
+ * @see https://en.wikipedia.org/wiki/Weak_ordering#Strict_weak_orderings
+ */
+bool operator<(const PIAnaHit&, const PIAnaHit&);
+
+struct PIHitPtrLess
+{
+  bool operator()(const PIAnaHit* hit1, const PIAnaHit* hit2)
+  { return *hit1 < *hit2; }
+};
 
 class PIAnaG4StepDivider
 {
