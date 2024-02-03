@@ -27,6 +27,11 @@ public:
   ~PIAnaGraph();
   void AddPoint(const PIAnaHit *);
   void clear();
+  IndicesType::size_type get_num_points() { return cloud_->get_num_points(); }
+
+  const PIAnaHit* get_hit(IndexType idx) const
+  { return cloud_->get_hit(idx); }
+
   /**
    * @param radius The search radius. Hits are connected
    * if their distance is within the raidus.
@@ -42,8 +47,8 @@ public:
    * @return The collection of indices for connected hits to reference
    * point in the point cloud.
    */
-  IndicesType connected_components(const PIAnaPointCloud::Point& point,
-                                   const double radius);
+  IndicesType
+  connected_components(const PIAnaPointCloud::Point& point, const double radius);
 
 private:
   std::unique_ptr<PIAnaPointCloud> cloud_;
