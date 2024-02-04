@@ -11,7 +11,18 @@
 #pragma link C++ class PIAnaG4StepDivider+;
 
 #pragma link C++ class PIAnaLocCluster+;
-#pragma link C++ class PIAnaPat+;
+#pragma link C++ class PIAnaPat + ;
+
+#pragma link C++ class PIAnaGraph+ ;
+#pragma link C++ class PIAnaPointCloud+;
+#pragma link C++ class PIAnaPointCloud1D+;
+#pragma link C++ class PIAnaPointCloud3D+;
+#pragma link C++ class PIAnaPointCloudXYZ+;
+#pragma link C++ class PIAnaPointCloudT+;
+#pragma link C++ class PIPointCloud < double, PIAnaHit> + ;
+#pragma link C++ class PILocCluster + ;
+#pragma link C++ class PITCluster + ;
+#pragma link C++ class PIXYZCluster+;
 
 #pragma link C++ class PIAnaEvtBase+;
 #pragma link C++ class PIAnaAtarPho+;
