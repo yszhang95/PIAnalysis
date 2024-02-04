@@ -119,7 +119,7 @@ public:
 protected:
   PIAnaPointCloud3D();
   Point get_point(const PIAnaHit*) override = 0;
-  my_kd_tree_3d_t *index;
+  std::unique_ptr<my_kd_tree_3d_t> index;
 
 private:
   // copy constructor
@@ -171,7 +171,7 @@ public:
 protected:
   PIAnaPointCloud1D();
   Point get_point(const PIAnaHit*) override = 0;
-  my_kd_tree_1d_t *index;
+  std::unique_ptr<my_kd_tree_1d_t> index;
 
 private:
   // copy constructor

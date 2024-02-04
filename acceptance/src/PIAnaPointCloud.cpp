@@ -113,24 +113,19 @@ std::ostream& operator<<(std::ostream &os, const PIAnaPointCloud &cloud)
 PIAnaPointCloud3D::PIAnaPointCloud3D() : index(nullptr) {}
 
 PIAnaPointCloud3D::~PIAnaPointCloud3D() {
-  if (index)
-    delete index;
 }
 
 void PIAnaPointCloud3D::clear() {
-  if (index) delete index;
+  index.reset(nullptr);
   PIAnaPointCloud::clear();
 }
 
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L338
 void PIAnaPointCloud3D::build_kdtree_index()
 {
-  if (index){
-    delete index;
-  }
-  index = new my_kd_tree_3d_t(
+  index.reset( new my_kd_tree_3d_t(
       3 /*dim*/, cloud_,
-      nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */));
+      nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */)));
   index->buildIndex();
 }
 
@@ -197,24 +192,20 @@ PIAnaPointCloudXYZ::get_point(const PIAnaHit* hit)
 PIAnaPointCloud1D::PIAnaPointCloud1D() : index(nullptr) {}
 
 PIAnaPointCloud1D::~PIAnaPointCloud1D() {
-  if (index)
-    delete index;
 }
 
 void PIAnaPointCloud1D::clear() {
-  if (index) delete index;
+  index.reset(nullptr);
   PIAnaPointCloud::clear();
 }
 
 // https://github.com/BNLIF/wire-cell-data/blob/5c9fbc4aef81c32b686f7c2dc7b0b9f4593f5f9d/src/ToyPointCloud.cxx#L338
 void PIAnaPointCloud1D::build_kdtree_index()
 {
-  if (index) {
-    delete index;
-  }
-  index = new my_kd_tree_1d_t(
+
+  index.reset( new my_kd_tree_1d_t(
       1 /*dim*/, cloud_,
-      nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */));
+      nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */)));
   index->buildIndex();
 }
 
