@@ -12,7 +12,7 @@
 #include <type_traits>
 
 PIAnaAtarPho::PIAnaAtarPho(const std::string &treename)
-    : PIAnaEvtBase(treename), verbose_(false)
+    : PIAnaEvtBase(treename)
 {
 
 }

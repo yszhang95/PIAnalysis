@@ -20,8 +20,6 @@ public:
      The string is in format of "run:event:id", separated by ":".
    */
 
-  void verbose(const bool verbose) { verbose_ = verbose; }
-
   ClassDefOverride(PIAnaAtarPho, 1)
 
 private:
@@ -31,6 +29,5 @@ private:
   std::map<int, unsigned long long> procs_;
   std::map<int, unsigned long long> edep_procs_;
 
-  bool verbose_;
 };
 #endif

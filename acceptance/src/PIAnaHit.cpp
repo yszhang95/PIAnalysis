@@ -6,6 +6,20 @@
 #include "PIMCAtar.hh"
 #include "PIAnaHit.hpp"
 
+bool operator<(const PIAnaHit &h1, const PIAnaHit &h2)
+{
+  if (h1.t() < h2.t())
+    return true;
+  else if (h1.t() == h2.t() && h1.rec_z() < h2.rec_z())
+    return true;
+  else if (h1.t() == h2.t() && h1.rec_z() == h2.rec_z() && h1.rec_x() < h2.rec_x())
+    return true;
+  else if (h1.t() == h2.t() && h1.rec_z() == h2.rec_z() &&
+           h1.rec_x() == h2.rec_x() && h1.rec_y() == h2.rec_y())
+    return true;
+  return false;
+}
+
 std::vector<PIAnaHit>
 PIAnaG4StepDivider::process_atar_hit(PIMCAtar const & hit)
 {

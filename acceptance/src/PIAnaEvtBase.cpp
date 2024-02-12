@@ -7,19 +7,22 @@
 #include "TClonesArray.h"
 
 PIAnaEvtBase::PIAnaEvtBase(const std::string &treename)
-    : treename_(treename), info_(nullptr),
-      atar_(nullptr), track_(nullptr),
-      out_fname_("output.root"), initialized_(false)
+    : treename_(treename), info_(nullptr), atar_(nullptr), track_(nullptr),
+      out_fname_("output.root"), m_pion_(0.13957E3),
+      m_kaon_(0.49367700E3), m_proton_(0.93827200E3),
+      initialized_(false), verbose_(false)
 {
   chain_ = std::make_unique<TChain>(treename.c_str());
 
   info_ = new PIMCInfo();
   atar_ = new TClonesArray("PIMCAtar");
   track_ = new TClonesArray("PIMCTrack");
+  decay_ = new TClonesArray("PIMCDecay");
 
   chain_->SetBranchAddress("info", &info_);
   chain_->SetBranchAddress("atar", &atar_);
   chain_->SetBranchAddress("track", &track_);
+  chain_->SetBranchAddress("decay", &decay_);
 }
 
 PIAnaEvtBase::~PIAnaEvtBase()
@@ -31,6 +34,7 @@ PIAnaEvtBase::~PIAnaEvtBase()
   delete info_;
   delete atar_;
   delete track_;
+  delete decay_;
 }
 
 void PIAnaEvtBase::out_file(const std::string &oname)
