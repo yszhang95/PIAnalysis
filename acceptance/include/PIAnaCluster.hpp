@@ -10,7 +10,7 @@
 #include "PIAnaPointCloud.hpp"
 
 /**
- * PIAnaCluster
+ * PILocCluster
  */
 class PILocCluster
 {

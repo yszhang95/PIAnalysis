@@ -10,9 +10,6 @@
 #pragma link C++ class PIAnaHitMerger+;
 #pragma link C++ class PIAnaG4StepDivider+;
 
-#pragma link C++ class PIAnaLocCluster+;
-#pragma link C++ class PIAnaPat + ;
-
 #pragma link C++ class PIAnaGraph+ ;
 #pragma link C++ class PIAnaPointCloud+;
 #pragma link C++ class PIAnaPointCloud1D+;

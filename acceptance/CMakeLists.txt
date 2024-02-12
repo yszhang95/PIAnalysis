@@ -21,7 +21,6 @@ add_library(PiAnaAcc SHARED
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaAtarPho.cpp
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaEvtBase.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaHit.cpp
-                     ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaPat.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaCluster.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaGraph.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaPointCloud.cpp
@@ -34,7 +33,6 @@ add_library(PiAnaAcc SHARED
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAtarPho.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaEvtBase.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp
-                     ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
                      ${PIONEER_LIB_SOURCE_DIR}/include/PIMCAtar.hh)
 
 target_include_directories(PiAnaAcc PUBLIC include
@@ -49,7 +47,7 @@ root_generate_dictionary(G__PiAnaAcc ${PIAnaAcceptance_SOURCE_DIR}/include/PIAna
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaGraph.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPointCloud.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIPointCloud.hpp
-  ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPat.hpp
+  ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp
                          MODULE PiAnaAcc LINKDEF ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAcc_linkdef.h)
 
 add_subdirectory(test)
