@@ -51,7 +51,9 @@ public:
   void add_file(const std::string&);
   void add_friend(const std::string &);
 
-  void filter(const std::string&);
+  void filter(const std::string &);
+
+  void verbose(const bool verbose) { verbose_ = verbose; }
 
   ClassDef(PIAnaEvtBase, 1)
 
@@ -81,10 +83,17 @@ protected :
   std::unique_ptr<TFile> fout_;
 
   PIMCInfo* info_;
-  TClonesArray* track_;
-  TClonesArray* atar_;
+  TClonesArray *track_;
+  TClonesArray *atar_;
+  TClonesArray *decay_;
+
+  const double m_pion_; // MeV
+  const double m_kaon_; // MeV
+  const double m_proton_; // MeV
 
   bool initialized_;
+
+  bool verbose_;
 
 private:
   std::string out_fname_;
