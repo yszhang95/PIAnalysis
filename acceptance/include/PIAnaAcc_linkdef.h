@@ -22,6 +22,8 @@
 #pragma link C++ class PIXYZCluster+;
 
 #pragma link C++ class PIAnaEvtBase+;
+#pragma link C++ class PIPiDARFilter+;
+#pragma link C++ class PIFilterBase+;
 #pragma link C++ class PIAnaAtarPho+;
 #pragma link C++ class PIAnalyzer+;
 

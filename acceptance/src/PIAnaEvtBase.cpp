@@ -1,10 +1,14 @@
 #include <iostream>
 
+#include "PIFilterBase.hpp"
 #include "PIAnaEvtBase.hpp"
+
 #include "TChain.h"
+#include "TError.h"
 #include "TFile.h"
-#include "PIMCInfo.hh"
 #include "TClonesArray.h"
+
+#include "PIMCInfo.hh"
 
 PIAnaEvtBase::PIAnaEvtBase(const std::string &treename)
     : treename_(treename), info_(nullptr), atar_(nullptr), track_(nullptr),
@@ -96,6 +100,28 @@ void PIAnaEvtBase::filter(const std::string &filterstr) {
   select_event_id_.event_id(run, event, eventid);
   std::cout << "[INFO] Setting event ID as " << run << ":"
               << event << ":" << eventid << ".\n";
+}
+
+void PIAnaEvtBase::add_filter(const std::string &n,
+                              std::unique_ptr<PIFilterBase> f)
+{
+  if (initialized_) {
+    const std::string msg =
+      ::Form("Cannot add filter %s"
+             " because the analyze has been initialized."
+             " Call add_filter() before initialize().",
+             n.c_str());
+    Warning("PIAnaEvtBase::add_filter", msg.c_str());
+    return;
+  }
+  if (filters_.find(n) == filters_.end()) {
+    const std::string msg = ::Form("Override filter %s", n.c_str());
+    Warning("PIAnaEvtBase::add_filter", msg.c_str());
+    return;
+  }
+  filters_.insert({n, std::move(f)});
+  filter_names_.push_back(n);
+  return;
 }
 
 void PIAnaEvtBase::initialize() {

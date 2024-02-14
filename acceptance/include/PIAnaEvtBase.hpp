@@ -3,6 +3,7 @@
 #include <Rtypes.h>
 #include <iostream>
 #include <memory>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,8 @@ class PIAnaHitMerger;
 class PIAnaG4StepDivider;
 
 class PIMCInfo;
+
+class PIFilterBase;
 
 class PIAnaEvtBase
 {
@@ -52,6 +55,7 @@ public:
   void add_friend(const std::string &);
 
   void filter(const std::string &);
+  void add_filter(const std::string&, std::unique_ptr<PIFilterBase>);
 
   void verbose(const bool verbose) { verbose_ = verbose; }
 
@@ -77,6 +81,9 @@ protected :
     }
   };
   void initialize();
+
+  std::map<std::string, std::unique_ptr<PIFilterBase>> filters_;
+  std::vector<std::string> filter_names_;
 
   select_event_id select_event_id_;
   std::unique_ptr<TChain> chain_;

@@ -19,7 +19,9 @@ find_package(ROOT 6.20 CONFIG REQUIRED)
 add_library(PiAnaAcc SHARED
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnalyzer.cpp
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaAtarPho.cpp
+  ${PIAnaAcceptance_SOURCE_DIR}/src/PIPiDARFilter.cpp
   ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaEvtBase.cpp
+  ${PIAnaAcceptance_SOURCE_DIR}/src/PIFilterBase.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaHit.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaCluster.cpp
                      ${PIAnaAcceptance_SOURCE_DIR}/src/PIAnaGraph.cpp
@@ -31,7 +33,9 @@ add_library(PiAnaAcc SHARED
                      ${PIAnaAcceptance_SOURCE_DIR}/include/Vector.h
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnalyzer.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAtarPho.hpp
+                     ${PIAnaAcceptance_SOURCE_DIR}/include/PIPiDARFilter.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaEvtBase.hpp
+                     ${PIAnaAcceptance_SOURCE_DIR}/include/PIFilterBase.hpp
                      ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaHit.hpp
                      ${PIONEER_LIB_SOURCE_DIR}/include/PIMCAtar.hh)
 
@@ -42,7 +46,9 @@ target_link_libraries(PiAnaAcc PUBLIC PiRootDict ROOT::Core)
 
 root_generate_dictionary(G__PiAnaAcc ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnalyzer.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaAtarPho.hpp
+  ${PIAnaAcceptance_SOURCE_DIR}/include/PIPiDARFilter.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaEvtBase.hpp
+  ${PIAnaAcceptance_SOURCE_DIR}/include/PIFilterBase.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaCluster.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaGraph.hpp
   ${PIAnaAcceptance_SOURCE_DIR}/include/PIAnaPointCloud.hpp
