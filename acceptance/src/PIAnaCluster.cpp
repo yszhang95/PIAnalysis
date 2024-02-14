@@ -86,3 +86,41 @@ PITCluster::cluster_all_hits(const std::vector<const PIAnaHit *> &allhits)
 
   return results;
 }
+
+PIXYZCluster::PIXYZCluster()
+{
+  this->PILocCluster::graph_ = std::make_unique<PIAnaGraph>(3);
+}
+
+PIXYZCluster::~PIXYZCluster() {}
+
+std::map<const PIAnaHit*, std::vector<const PIAnaHit * > >
+PIXYZCluster::connected_hits(const std::vector<const PIAnaHit *> &hits)
+{
+  std::map<const PIAnaHit *, std::vector<const PIAnaHit *>> results;
+  graph_->clear();
+  for (const auto &hit : hits) {
+    graph_->AddPoint(hit);
+  }
+  // groups of cluster index, cluster of hits
+  // sorted by distance in each group
+  auto idxs = graph_->connected_components(radius_);
+  for (const auto &hits : idxs) {
+    if (hits.second.empty())
+      continue;
+    const auto firsthit = graph_->get_hit(hits.second.front());
+    results.insert({firsthit, {}});
+    for (const auto hitidx : hits.second) {
+      const auto hit = graph_->get_hit(hitidx);
+      results.at(firsthit).push_back(hit);
+    }
+  }
+  return results;
+}
+
+std::map<const PIAnaHit*, std::vector<const PIAnaHit * > >
+PIXYZCluster::cluster_all_hits(const std::vector<const PIAnaHit *> &allhits)
+{
+  auto results = connected_hits(allhits);
+  return results;
+}

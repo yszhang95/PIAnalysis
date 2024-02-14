@@ -82,6 +82,17 @@ private:
 };
 
 class PIXYZCluster : public PILocCluster
-{};
+{
+public:
+  explicit PIXYZCluster();
+  ~PIXYZCluster();
+
+protected:
+  std::map<const PIAnaHit *, std::vector<const PIAnaHit * > >
+  connected_hits(const std::vector<const PIAnaHit *> &) final;
+  std::map<const PIAnaHit *, std::vector<const PIAnaHit * > >
+  cluster_all_hits(const std::vector<const PIAnaHit *> &) final;
+
+};
 
 #endif
