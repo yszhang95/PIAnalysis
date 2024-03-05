@@ -5,11 +5,12 @@
 
 #include "PIMCTrack.hh"
 #include "TClonesArray.h"
+#include <Rtypes.h>
 #include <stdexcept>
 
-PIFilterBase::PIFilterBase()
+PIFilterBase::PIFilterBase(const int evtcode)
     : info_(nullptr), track_(nullptr), atar_(nullptr),
-      decay_(nullptr), loaded_(false)
+      decay_(nullptr), code_(evtcode), loaded_(false)
 {}
 
 PIFilterBase::~PIFilterBase()

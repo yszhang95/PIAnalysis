@@ -26,6 +26,7 @@ PIAnaG4StepDivider::process_atar_hit(PIMCAtar const & hit)
 
   std::vector<PIAnaHit> hits;
 
+  const double pre_t = hit.GetTime() - hit.GetDT();
   const double pre_x = hit.GetX0();
   const double pre_y = hit.GetY0();
   const double pre_z = hit.GetZ0();
@@ -59,21 +60,109 @@ PIAnaG4StepDivider::process_atar_hit(PIMCAtar const & hit)
   const double edep = hit.GetEdep() / nsteps;
   const double dt = hit.GetDT() / nsteps;
 
-  for (unsigned int istep=0; istep<nsteps; ++istep) {
-    double x0 = pre_x + dx/nsteps * istep;
-    double y0 = pre_y + dy/nsteps * istep;
-    double z0 = pre_z + dz/nsteps * istep;
-    double t1 = pos_t + dt        * istep;
+  std::array<double, 4> dtxyz;
+  dtxyz.at(0) = dt;
+  dtxyz.at(1) = dx / nsteps;
+  dtxyz.at(2) = dy / nsteps;
+  dtxyz.at(3) = dz / nsteps;
 
-    const auto xstrip  = PIAnaHit::find_strip( x0 );
-    const auto ystrip  = PIAnaHit::find_strip( y0 );
-    const auto layerid = PIAnaHit::find_layer( z0 );
+  for (unsigned int istep = 0; istep < nsteps; ++istep) {
+    std::array<double, 4> txyz0, txyz1, txyzmid;
+    txyz0.at(0) = pre_t + dtxyz.at(0) * istep;
+    txyz0.at(1) = pre_x + dtxyz.at(1) * istep;
+    txyz0.at(2) = pre_y + dtxyz.at(2) * istep;
+    txyz0.at(3) = pre_z + dtxyz.at(3) * istep;
 
-    hits.emplace_back(x0, y0, z0,
-                      xstrip.second, ystrip.second, layerid.second,
-                      edep, t1, dt,
-                      xstrip.first, ystrip.first, layerid.first,
-                      hit.GetPDGID(), hit.GetTrackID(), true);
+    for (unsigned int i = 0; i != 4; ++i) {
+      txyz1.at(i) = txyz0.at(i) + dtxyz.at(i);
+      txyzmid.at(i) = txyz0.at(i) + dtxyz.at(i)/2.;
+    }
+
+    std::array<std::pair<int, double>, 3> pre_step, pos_step, mid_step;
+    {
+      for (unsigned int i = 0; i != 2; ++i) {
+        pre_step.at(i) = PIAnaHit::find_strip(txyz0.at(i + 1));
+        pos_step.at(i) = PIAnaHit::find_strip(txyz1.at(i + 1));
+        mid_step.at(i) = PIAnaHit::find_strip(txyzmid.at(i+1));
+      }
+      pre_step.at(2) = PIAnaHit::find_layer(txyz0.at(3));
+      pos_step.at(2) = PIAnaHit::find_layer(txyz1.at(3));
+      mid_step.at(2) = PIAnaHit::find_layer(txyzmid.at(3));
+    }
+
+    // Prerequisites: step size must be smaller than pitch size and layer
+    // thickness.
+    // Three steps at most in advance means four steps at most in total.
+    // Tetermine their order by step size.
+    std::array<double, 5> fracs{0, 1, 1, 1, 1};
+    unsigned int ncrossed = 0;
+    for (unsigned int i = 0; i != 3; ++i) {
+      const bool cross_component = pre_step.at(i).first != pos_step.at(i).first;
+      if (cross_component) {
+        // std::cout << "Printing out\n";
+        // std::cout << "Crossed along " << i + 1
+        //           << " component where i is from 1 to 3, at boundary "<<
+        //   (pre_step.at(i).second + pos_step.at(i).second)/2. <<
+        //   "\n";
+        ncrossed++;
+        const double dist =
+            std::abs((pre_step.at(i).second + pos_step.at(i).second) / 2.
+                     - txyz0.at(i + 1));
+        fracs.at(i + 1) = dist / std::abs(dtxyz.at(i + 1));
+        // std::cout << "Corresponding (distance, fraction, total step size) to "
+        //              "boundary is ("
+        //           << dist << ", " << fracs.at(i+1) << "," << dtxyz.at(i+1) << ")" << std::endl;
+      }
+    }
+    std::sort(std::begin(fracs), std::end(fracs),
+              [](const double i, const double j) { return i<j; });
+    if (ncrossed) {
+      // std::cout << "Crossed boundaries " << ncrossed
+      //           << " times from (" << txyz0.at(0) << "," << txyz0.at(1) << "," << txyz0.at(2) << "," << txyz0.at(3) << ") to (" << txyz1.at(0) << "," << txyz1.at(1) << "," << txyz1.at(2) << "," << txyz1.at(3) <<
+      //   ")\n";
+      for (unsigned int i = 0; i != ncrossed+1; ++i) {
+        const double dfrac = fracs.at(i + 1) - fracs.at(i);
+        // t, x, y, z
+        // std::cout << "Step forwad by a fraction of " << dfrac << "\n";
+        for (unsigned int j = 0; j != 4; ++j) {
+          txyz1.at(j) = txyz0.at(j) + dfrac * dtxyz.at(j);
+          txyzmid.at(j) = txyz0.at(j) + dfrac*dtxyz.at(j)/2.;
+        }
+        // update values for this iteration
+        for (unsigned int i = 0; i != 2; ++i) {
+          pre_step.at(i) = PIAnaHit::find_strip(txyz0.at(i + 1));
+          pos_step.at(i) = PIAnaHit::find_strip(txyz1.at(i + 1));
+          mid_step.at(i) = PIAnaHit::find_strip(txyzmid.at(i+1));
+        }
+        pre_step.at(2) = PIAnaHit::find_layer(txyz0.at(3));
+        pos_step.at(2) = PIAnaHit::find_layer(txyz1.at(3));
+        mid_step.at(2) = PIAnaHit::find_layer(txyzmid.at(3));
+        // insert new element
+        if (mid_step.at(0).first >= 0 && mid_step.at(1).first >= 0 &&
+            mid_step.at(2).first >= 0) {
+          hits.emplace_back(txyzmid.at(1), txyzmid.at(2), txyzmid.at(3),
+                            mid_step.at(0).second, mid_step.at(1).second,
+                            mid_step.at(2).second, edep * dfrac, txyz1.at(0), dtxyz.at(0) * dfrac,
+                            mid_step.at(0).first, mid_step.at(1).first, mid_step.at(2).first,
+                            hit.GetPDGID(), hit.GetTrackID(), true);
+        }
+
+        // update values for next iteration
+        for (unsigned int j = 0; j != 4; ++j) {
+          txyz0.at(j) = txyz1.at(j);
+        }
+      }
+    } else {
+      if (mid_step.at(0).first >= 0 && mid_step.at(1).first >= 0 &&
+          mid_step.at(2).first >= 0) {
+        hits.emplace_back(txyzmid.at(1), txyzmid.at(2), txyzmid.at(3),
+                          mid_step.at(0).second, mid_step.at(1).second,
+                          mid_step.at(2).second, edep, txyz1.at(0),
+                          dtxyz.at(0), mid_step.at(0).first,
+                          mid_step.at(1).first, mid_step.at(2).first,
+                          hit.GetPDGID(), hit.GetTrackID(), true);
+      }
+    }
   }
   return hits;
 }

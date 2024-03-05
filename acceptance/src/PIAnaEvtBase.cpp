@@ -114,10 +114,13 @@ void PIAnaEvtBase::add_filter(const std::string &n,
     Warning("PIAnaEvtBase::add_filter", msg.c_str());
     return;
   }
-  if (filters_.find(n) == filters_.end()) {
+  if (filters_.find(n) != filters_.end()) {
     const std::string msg = ::Form("Override filter %s", n.c_str());
     Warning("PIAnaEvtBase::add_filter", msg.c_str());
     return;
+  } else {
+    const std::string msg = ::Form("Added filter %s", n.c_str());
+    Info("PIAnaEvtBase::add_filter", msg.c_str());
   }
   filters_.insert({n, std::move(f)});
   filter_names_.push_back(n);
