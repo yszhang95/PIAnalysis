@@ -23,9 +23,18 @@
 
 #pragma link C++ class PIAnaEvtBase+;
 #pragma link C++ class PIPiDARFilter+;
+#pragma link C++ class PIPiDecayInSi+;
 #pragma link C++ class PIFilterBase+;
 #pragma link C++ class PIAnaAtarPho+;
 #pragma link C++ class PIAnalyzer+;
+
+#pragma link C++ namespace PIAna+;
+#pragma link C++ class PIAna::PITkFinder+;
+#pragma link C++ class PIAna::PITkPCA+;
+#pragma link C++ class PIAna::PIEventData+;
+#pragma link C++ nestedclass;
+// #pragma link C++ nestedfunction;
+#pragma link C++ nestedtypedef;
 
 #pragma link C++ class std::vector<PIAnaHit>+;
 #pragma link C++ class std::vector<PIMCAtar>+;

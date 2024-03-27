@@ -59,8 +59,6 @@ public:
 
   void verbose(const bool verbose) { verbose_ = verbose; }
 
-  ClassDef(PIAnaEvtBase, 1)
-
 protected :
   struct select_event_id {
     int run;

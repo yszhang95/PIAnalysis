@@ -50,6 +50,15 @@ public:
   IndicesType
   connected_components(const PIAnaPointCloud::Point& point, const double radius);
 
+    /**
+   * Find out N hits connected to the reference point.
+   * @param point Reference point for search within radius.
+   * @param N N neartest points.
+   * @return The collection of indices for connected hits to reference
+   * point in the point cloud.
+   */
+  IndicesType
+  connected_components(const PIAnaPointCloud::Point& point, const int N);
 private:
   std::unique_ptr<PIAnaPointCloud> cloud_;
   std::unique_ptr<PIGraph> graph_;

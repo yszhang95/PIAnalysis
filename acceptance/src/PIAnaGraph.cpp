@@ -71,3 +71,19 @@ PIAnaGraph::connected_components(const PIAnaPointCloud::Point& point,
   }
   return results;
 }
+
+PIAnaGraph::IndicesType
+PIAnaGraph::connected_components(const PIAnaPointCloud::Point& point,
+                                 const int N)
+{
+  IndicesType results;
+  graph_.reset(new PIGraph());
+  cloud_->build_kdtree_index();
+  auto vec_idx_dis = cloud_->get_closest_index(point, N);
+  for (const auto& idx_dis : vec_idx_dis) {
+    const auto index = idx_dis.first;
+    // std::cout << "distance " << std::sqrt(idx_dis.second) << "\n";
+    results.push_back(index);
+  }
+  return results;
+}

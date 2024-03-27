@@ -20,8 +20,6 @@ public:
      The string is in format of "run:event:id", separated by ":".
    */
 
-  ClassDefOverride(PIAnaAtarPho, 1)
-
 private:
   int analyze();
   int analyze_atarpho();

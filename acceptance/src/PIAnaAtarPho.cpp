@@ -152,5 +152,3 @@ int PIAnaAtarPho::analyze_atarpho()
   }
   return 0;
 }
-
-ClassImp(PIAnaAtarPho)
