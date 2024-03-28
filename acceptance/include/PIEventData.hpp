@@ -4,6 +4,7 @@
 #include <any>
 #include <map>
 #include <string>
+#include <vector>
 
 namespace PIAna
 {
@@ -39,6 +40,15 @@ namespace PIAna
     {
       return std::any_cast<const T &>(data_.at(n));
     };
+
+    const std::vector<KeyType> Keys() const 
+    {
+      std::vector<KeyType> keys;
+      for (const auto& kv : data_) {
+        keys.push_back(kv.first);
+      }
+      return keys;
+    }
 
   private:
     RecordType data_;
