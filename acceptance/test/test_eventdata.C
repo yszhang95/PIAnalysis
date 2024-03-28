@@ -17,7 +17,7 @@ void test_eventdata()
 {
   PIAna::PIEventData event;
   ROOT::Math::XYZPoint p1(1, 2, 3);
-  event.Register("p1", p1);
+  event.Put("p1", p1);
   const auto &p1ref = event.Get<ROOT::Math::XYZPoint>("p1");
   std::cout << p1.x() << " == " << p1ref.x() << "\n";
 
@@ -33,10 +33,10 @@ void test_eventdata()
     h4.Fill(gRandom->Gaus(0, 1));
   }
 
-  event.Register("h1", h1);
-  event.Register("h2", h2);
-  event.Register("h3", h3);
-  event.Register("h4", h4);
+  event.Put("h1", h1);
+  event.Put("h2", h2);
+  event.Put("h3", h3);
+  event.Put("h4", h4);
 
   draw(event.Get<TH2F *>("h1"), "h1.png");
   // draw(&event.Get<TH2F>("h2"), "h2.png");

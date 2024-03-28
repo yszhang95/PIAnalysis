@@ -17,30 +17,31 @@ namespace PIAna
   class PIEventData
   {
   public:
-    using RegistryType = std::map<const std::string, std::any>;
-    using RegistryKeyType = std::string;
+    using RecordType = std::map<const std::string, std::any>;
+    using KeyType = std::string;
     PIEventData(){};
 
     /**
      * Register data to registry.
      * Data will be copied to registry.
+     * Not a safe way.
      */
     template <typename T>
-    std::pair<RegistryType::iterator, bool>
-    Register(RegistryKeyType n, const T& d)
-    { return data_.insert({n, d}); }
+    void
+    Put(const KeyType& n, const T& d)
+    { data_[n] = d; }
     /**
      * A way like static cast to get data out.
      * Virtual methods cannot work.
      */
     template <typename T>
-    const T &Get(const std::string &n) const
+    const T &Get(const KeyType& n) const
     {
       return std::any_cast<const T &>(data_.at(n));
     };
 
   private:
-    RegistryType data_;
+    RecordType data_;
   };
 };
 
