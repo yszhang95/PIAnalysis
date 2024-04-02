@@ -32,6 +32,13 @@
 #pragma link C++ class PIAna::PITkFinder+;
 #pragma link C++ class PIAna::PITkPCA+;
 #pragma link C++ class PIAna::PIEventData+;
+#pragma link C++ class PIAna::PIEventAction+;
+#pragma link C++ class PIAna::PIEventAnalyzer+;
+#pragma link C++ class PIAna::PIEventFilter+;
+#pragma link C++ class PIAna::PIEventProducer+;
+#pragma link C++ class PIAna::PIJobManager+;
+#pragma link C++ class PIAna::PIPiDARFilter+;
+#pragma link C++ class PIAna::PIHitProducer+;
 #pragma link C++ nestedclass;
 // #pragma link C++ nestedfunction;
 #pragma link C++ nestedtypedef;
