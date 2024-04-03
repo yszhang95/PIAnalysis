@@ -11,6 +11,25 @@ R__LOAD_LIBRARY(../../../PIAnalysis_install/lib/libPiAnaAcc.so)
 #include "PIEventData.hpp"
 #endif
 
+struct point {
+  float x;
+  float y;
+  float z;
+  point(float x, float y, float z) : x(x), y(y), z(z) {}
+  void set_point(float x, float y, float z) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
+  }
+};
+
+void print(PIAna::PIEventData& event) {
+  const auto &ptrs = event.Get<std::vector<const point *>>("ptrs");
+  for (const auto ptr : ptrs) {
+    std::cout << ptr->x << ", " << ptr->y << ", " << ptr->z << "\n";
+  }
+}
+
 void draw(TH1* h, const char*);
 
 void test_eventdata()
@@ -37,6 +56,23 @@ void test_eventdata()
   event.Put("h2", h2);
   event.Put("h3", h3);
   event.Put("h4", h4);
+
+  std::vector<point> ps;
+  for (int i = 0; i < 10; ++i) {
+    ps.emplace_back(i, i, i);
+  }
+  event.Put("points", ps);
+
+  const auto &points = event.Get<std::vector<point>>("points");
+
+  std::vector<const point*> ptrs;
+  for (const auto &p : points) {
+    const point *ptr = &p;
+    ptrs.push_back(ptr);
+  }
+  event.Put<std::vector<const point *>>("ptrs", ptrs);
+
+  print(event);
 
   draw(event.Get<TH2F *>("h1"), "h1.png");
   // draw(&event.Get<TH2F>("h2"), "h2.png");
