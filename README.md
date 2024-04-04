@@ -20,21 +20,19 @@ An example is
   cp shared_cmake.txt shared/CMakeLists.txt
   cd shared/include
   perl -i.bak -pe 's/Get(.+?)\(\)/Get$1() const/g' PIMCAtar.hh
-  cmake -B build -S . \
+  perl -i.bak -pe 's/Get(.+?)\(\)/Get$1() const/g' PIMCInfo.hh
+  mkdir ../PIAnalysis_build && cd ../PIAnalysis_build
+  # replace ROOT_DIR with your own setup
+  cmake ../PIAnalysis \
   -DROOT_DIR=/opt/local/libexec/root6/share/root/cmake \
-  -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  -DCMAKE_INSTALL_PREFIX=${PWD}/../PIAnalysis_install -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build build --target install
 ```
 
 ### Run macro
-Edit the input in `acceptance/test/run_hit_merger.C` and validate it.
+Edit the input in `acceptance/test/test_job.C` and validate it.
 Then do
 ```shell
 cd acceptance/test
-# root -b -q run_hit_merger.C
-# prepare a small ntuple of fast simulated hits using PIAnalyzer
-root -b -q run_test.C
-# event display
-# assume the input file exists. Check the input file in run_hit_merger.C
-./display_track.sh 12
+root -b -q test_job.C
 ```

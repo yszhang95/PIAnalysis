@@ -41,7 +41,11 @@ namespace PIAna
     void add_friend(const std::string&);
     void treename(const std::string&);
 
-    void add_action(const std::string &n, std::unique_ptr<PIEventAction> action);
+    void add_action(const std::string &, std::unique_ptr<PIEventAction>);
+
+    PIEventAction *get_action(const std::string &);
+
+    TFile *out_file() { return fout_.get(); }
 
   private:
     void do_actions();

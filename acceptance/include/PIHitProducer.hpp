@@ -24,6 +24,7 @@ namespace PIAna
     double merge_hit_dtmin() const { return merge_hit_dtmin_; }
   protected:
     void produce(PIEventData &) override;
+    void fill_dummy(PIEventData &) override;
 
   private:
     std::unique_ptr<PIAnaG4StepDivider> divider_;

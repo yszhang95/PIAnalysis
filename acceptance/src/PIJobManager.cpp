@@ -48,7 +48,7 @@ PIAna::PIJobManager::~PIJobManager()
 
 void PIAna::PIJobManager::begin()
 {
-    initialize();
+  initialize();
   for (const auto &n : action_names_) {
     actions_.at(n)->Begin();
   }
@@ -185,14 +185,22 @@ void PIAna::PIJobManager::add_action(const std::string &n,
     const std::string msg = ::Form("Override action %s", n.c_str());
     Warning("PIAna::PIJobManager::add_action", msg.c_str());
     actions_.at(n) = std::move(action);
-    return;
   } else {
     const std::string msg = ::Form("Added action %s", n.c_str());
     Info("PIAna::PIJobManager::add_action", msg.c_str());
     actions_.insert({n, std::move(action)});
     action_names_.push_back(n);
   }
+  actions_.at(n)->SetJobManager(this);
   return;
+}
+
+PIAna::PIEventAction *PIAna::PIJobManager::get_action(const std::string &n)
+{
+  if (actions_.find(n) == actions_.end()) {
+    return nullptr;
+  }
+  return actions_.at(n).get();
 }
 
 void PIAna::PIJobManager::initialize() {

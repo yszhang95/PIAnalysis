@@ -52,3 +52,5 @@ void PIAna::PIHitProducer::produce(PIEventData &event)
             });
   event.Put<std::vector<PIAnaHit > >(PIEventProducer::GetName(), rec_hits);
 }
+
+void PIAna::PIHitProducer::fill_dummy(PIEventData& event) {}

@@ -21,6 +21,7 @@ namespace PIAna
      * produce
      */
     virtual void produce(PIEventData &evt) = 0;
+    virtual void fill_dummy(PIEventData &evt) = 0;
 
   private:
     const std::string name_;

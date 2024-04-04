@@ -10,9 +10,9 @@ namespace PIAna
     PIEventAnalyzer(const std::string&);
     virtual ~PIEventAnalyzer();
 
-    virtual void Begin() = 0;
+    virtual void Begin();
     virtual void DoAction(PIEventData &evt);
-    virtual void End() = 0;
+    virtual void End();
 
     const std::string GetName() const { return name_; }
 

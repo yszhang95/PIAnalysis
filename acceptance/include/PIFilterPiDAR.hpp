@@ -1,8 +1,7 @@
-#ifndef __PI_PiDAR_Filter__
-#define __PI_PiDAR_Filter__
+#ifndef __PI_PiDARFilter__
+#define __PI_PiDARFilter__
 #include "PIEventFilter.hpp"
 #include "PIEventData.hpp"
-#include <Rtypes.h>
 
 namespace PIAna
 {
@@ -22,7 +21,7 @@ namespace PIAna
 
   private:
     double ke_threshold_;
-};
+  };
 };
 
 #endif
