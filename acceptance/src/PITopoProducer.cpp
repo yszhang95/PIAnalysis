@@ -13,8 +13,9 @@
 
 PIAna::PITopoProducer::PITopoProducer(const std::string &name)
   : PIEventProducer(name), rec_hits_name_("RecHits"),
-      tcluster_dt_(5), min_tcluster_(1), ncluster_(0)
+    tcluster_dt_(5), dt_(1), dl_(0.2), min_tcluster_(1)
   {
+    dl_ = std::sqrt(0.2*0.2*2 + 0.12*0.12)*3; // some random guess of 3 pixels
     tcluster_ = std::make_unique<PITCluster>();
     xyzcluster_ = std::make_unique<PIXYZCluster>();
   }
@@ -25,10 +26,31 @@ void PIAna::PITopoProducer::Begin()
 {
   PIEventProducer::Begin();
 
-    tcluster_->radius(1); // I assume it is in ns
+  tcluster_->radius(dt_);
+  xyzcluster_->radius(dl_);
 
-  xyzcluster_->radius(std::sqrt(0.2*0.2*2 + 0.12*0.12)*3); // I assume it is around one pixel
+  if (PIEventAction::verbose_) {
+    report();
+  }
+}
 
+void PIAna::PITopoProducer::report() {
+  std::vector<std::string> msgs;
+
+  msgs.emplace_back(::Form("PITopoProducer: %s", PIEventProducer::GetName().c_str()));
+  msgs.emplace_back(::Form("Input hit collection: %s", rec_hits_name_.c_str()));
+
+  msgs.emplace_back(::Form("Minimum timing separation between t-clusters: %f [ns]", tcluster_dt_));
+
+  msgs.emplace_back(::Form("Search radius for t-cluster: %f [ns]", dt_));
+
+  msgs.emplace_back(::Form("Search radius for xyz-cluster: %f [mm]", dl_));
+
+  msgs.emplace_back(::Form("Minimum number of t-cluster: %u", min_tcluster_));
+
+  for (const auto &msg : msgs) {
+    Info("PIAna::PITopoProducer", msg.c_str());
+  }
 }
 
 void PIAna::PITopoProducer::DoAction(PIEventData &event)

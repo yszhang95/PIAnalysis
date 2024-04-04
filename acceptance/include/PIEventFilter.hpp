@@ -24,6 +24,7 @@ namespace PIAna
      * @return true if pass the selection.
      */
     virtual bool get_bit(const PIEventData &evt) = 0;
+    virtual void report() {}
 
   private:
     const std::string name_;

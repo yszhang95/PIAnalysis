@@ -21,6 +21,7 @@ namespace PIAna
      * analyze
      */
     virtual void analyze(const PIEventData &evt) = 0;
+    virtual void report() {}
 
   private:
     const std::string name_;

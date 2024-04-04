@@ -27,7 +27,13 @@ void run_test_pienu()
   // pi.add_action("PiDAR", std::make_unique<PIAna::PIPiDARFilter>(
                              // "PiDAR", static_cast<int>(PIAna::EvtCode::PiDAR)));
   pi.add_action("RecHits", std::make_unique<PIAna::PIHitProducer>("RecHits"));
+  auto rechits = dynamic_cast<PIAna::PIHitProducer *>(pi.get_action("RecHits"));
+  rechits->verbose(true);
   pi.add_action("Topo", std::make_unique<PIAna::PITopoProducer>("Topo"));
+  auto topoproducer =
+      dynamic_cast<PIAna::PITopoProducer *>(pi.get_action("Topo"));
+  topoproducer->min_tcluster(2);
+  topoproducer->verbose(true);
   std::unique_ptr<PIAna::PITreeAnalyzer> treeanalyzer =
       std::make_unique<PIAna::PITreeAnalyzer>("AnaHits");
   pi.add_action("AnaHits", std::move(treeanalyzer));

@@ -6,22 +6,24 @@
 #include "PIEventData.hpp"
 
 PIAna::PIHitProducer::PIHitProducer(const std::string &name)
-  : PIEventProducer(name), merge_hit_dtmin_(1)
-  {
-    divider_ = std::make_unique<PIAnaG4StepDivider>();
-    merger_ = std::make_unique<PIAnaHitMerger>();
-  }
+  : PIEventProducer(name), merge_hit_dtmin_(1), step_limit_(0.02), g4_step_limit_(60)
+{
+  divider_ = std::make_unique<PIAnaG4StepDivider>();
+  merger_ = std::make_unique<PIAnaHitMerger>();
+}
 
 PIAna::PIHitProducer::~PIHitProducer() {}
 
 void PIAna::PIHitProducer::Begin()
 {
   PIEventProducer::Begin();
-  // divider_->step_limit(0.01); // I assume it is in mm
-  divider_->step_limit(0.02); // I assume it is in mm//
-  divider_->g4_step_limit(60); // I assume it is in mm
+  divider_->step_limit(step_limit_);
+  divider_->g4_step_limit(g4_step_limit_);
+  merger_->dt_min(merge_hit_dtmin_);
 
-  merger_->dt_min(merge_hit_dtmin_); // I assum it is in ns
+  if (verbose_) {
+    report();
+  }
 }
 
 void PIAna::PIHitProducer::DoAction(PIEventData &event)
@@ -54,3 +56,16 @@ void PIAna::PIHitProducer::produce(PIEventData &event)
 }
 
 void PIAna::PIHitProducer::fill_dummy(PIEventData& event) {}
+
+void PIAna::PIHitProducer::report()
+{
+  Info("PIAna::PIHitProducer",
+       ::Form("PIHitProducer: %s", PIEventProducer::GetName().c_str()));
+  Info("PIAna::PIHitProducer",
+       ::Form("Merge two hits if dt < %f [ns]", merge_hit_dtmin_));
+  Info("PIAna::PIHitProducer",
+       ::Form("Maximum step size for each divided step: %f [mm]", step_limit_));
+  Info("PIAna::PIHitProducer",
+       ::Form("Maximum step size of each G4 step for warning: %f [mm]",
+              g4_step_limit_));
+}

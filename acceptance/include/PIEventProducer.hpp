@@ -22,7 +22,7 @@ namespace PIAna
      */
     virtual void produce(PIEventData &evt) = 0;
     virtual void fill_dummy(PIEventData &evt) = 0;
-
+    virtual void report() {}
   private:
     const std::string name_;
   };

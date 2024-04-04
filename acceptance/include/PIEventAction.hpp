@@ -8,22 +8,22 @@ namespace PIAna
   class PIEventAction
   {
   public:
-    PIEventAction() : initialized_(false), mgr_(nullptr) {}
+    PIEventAction() : initialized_(false), verbose_(false), mgr_(nullptr) {}
     virtual ~PIEventAction() {};
     virtual void Begin() = 0;
     virtual void DoAction(PIEventData& evt) = 0;
     virtual void End() = 0;
 
+    void verbose(const bool verbose) { verbose_ = verbose; }
+
     void SetJobManager(PIJobManager* mgr) { mgr_ = mgr; }
-    // for filter, producer, and analyzer to read in-memory data holder
-    // virtual void Read() = 0;
-    // for producer write to in-memory data holder
-    // virtual void Update() {};
-    // for analyzer write objects to TFile that is owned by job manager;
-    // virtual void AddToFile() = 0;
+
   protected:
+    virtual void report() = 0;
+
     void initialize() { initialized_ = true; };
     bool initialized_;
+    bool verbose_;
     PIJobManager* mgr_;
   };
 };
