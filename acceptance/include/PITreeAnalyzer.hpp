@@ -39,10 +39,9 @@ namespace PIAna
     ROOT::Math::XYZPoint *estart_;
     ROOT::Math::Polar3DVector *edirection_;
     TTree *rec_tree_;
-    TFile *output_;
     int clusterid_[1000];
     int ncluster_;
-};
+  };
 };
 
 #endif

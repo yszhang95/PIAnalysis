@@ -4,7 +4,7 @@
 #include "TError.h"
 
 PIAna::PIEventAnalyzer::PIEventAnalyzer(const std::string &name)
-                                    : name_(name) {}
+  : name_(name), outputfile_(nullptr) {}
 
 PIAna::PIEventAnalyzer::~PIEventAnalyzer() {}
 

@@ -117,6 +117,7 @@ void PIAna::PIJobManager::end()
   for (const auto &n : action_names_) {
     actions_.at(n)->End();
   }
+  fout_->Write();
 }
 
 void PIAna::PIJobManager::out_file(const std::string &oname)

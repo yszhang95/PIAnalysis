@@ -14,7 +14,7 @@
 #include <Math/Vector3Dfwd.h>
 
 PIAna::PITreeAnalyzer::PITreeAnalyzer(const std::string &name)
-  : PIEventAnalyzer(name), output_(nullptr) {
+  : PIEventAnalyzer(name) {
   rec_tree_ = new TTree("rec_hits", "reconstructed hits");
   std::fill(std::begin(clusterid_), std::end(clusterid_), 0);
 
@@ -37,10 +37,12 @@ void PIAna::PITreeAnalyzer::Begin()
 {
   PIEventAnalyzer::Begin();
   if (PIEventAction::mgr_->out_file()) {
-    output_ = PIEventAction::mgr_->out_file();
+    PIEventAnalyzer::outputfile_ = PIEventAction::mgr_->out_file();
+  } else {
+    Fatal("PIAna::PITreeAnalyzer::Begin()", "Output file is not proper initialized.");
   }
-  if (output_) {
-    rec_tree_->SetDirectory(output_);
+  if (PIEventAnalyzer::outputfile_) {
+    rec_tree_->SetDirectory(PIEventAnalyzer::outputfile_);
     rec_tree_->Branch("ncluster", &ncluster_);
     rec_tree_->Branch("clusterid", clusterid_, "clusterid[ncluster]/I");
     rec_tree_->Branch("x", &this->x_);
@@ -51,8 +53,6 @@ void PIAna::PITreeAnalyzer::Begin()
     rec_tree_->Branch("pivertex", this->pivertex_);
     rec_tree_->Branch("estart", this->estart_);
     rec_tree_->Branch("edirection", this->edirection_);
-  } else {
-    Fatal("PIAna::PITreeAnalyzer::Begin()", "Output file is not proper initialized.");
   }
 }
 
@@ -63,7 +63,6 @@ void PIAna::PITreeAnalyzer::DoAction(PIEventData &event)
 
 void PIAna::PITreeAnalyzer::End() {
   PIEventAnalyzer::End();
-  output_->Write();
 }
 
 void PIAna::PITreeAnalyzer::analyze(const PIEventData &event)

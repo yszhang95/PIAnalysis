@@ -2,6 +2,9 @@
 #define __PI_EventAnalyzer__
 #include <string>
 #include "PIEventAction.hpp"
+
+class TFile;
+
 namespace PIAna
 {
   class PIEventAnalyzer : public PIEventAction
@@ -22,6 +25,9 @@ namespace PIAna
      */
     virtual void analyze(const PIEventData&) = 0;
     virtual void report() {}
+
+    // assigned by job manager
+    TFile *outputfile_;
 
   private:
     const std::string name_;
