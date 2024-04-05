@@ -31,9 +31,9 @@ void PIAna::PIPiDARFilter::End()
   PIEventFilter::End();
 }
 
-bool PIAna::PIPiDARFilter::get_bit(const PIEventData& evt)
+bool PIAna::PIPiDARFilter::filter(const PIEventData& event)
 {
-  const TClonesArray* tracks = evt.Get<const TClonesArray*>("track");
+  const TClonesArray* tracks = event.Get<const TClonesArray*>("track");
   for (size_t j=0; j<tracks->GetEntries(); ++j) {
     auto g4track = dynamic_cast<PIMCTrack*>(tracks->At(j));
     // track;
@@ -47,7 +47,7 @@ bool PIAna::PIPiDARFilter::get_bit(const PIEventData& evt)
       for (std::vector<Float_t>::size_type i = 0; i < ts.size(); ++i) {
         const auto t = ts.at(i);
         if (i > 0 && t - ts.at(i-1) < 0) {
-          Error("PIAna::PIPiDARFilter::get_bit",
+          Error("PIAna::PIPiDARFilter::filter",
                 "The arrays of pion momentum are not sorted by time.");
         }
         const auto px = pxs.at(i);

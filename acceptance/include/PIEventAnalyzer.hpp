@@ -11,7 +11,7 @@ namespace PIAna
     virtual ~PIEventAnalyzer();
 
     virtual void Begin();
-    virtual void DoAction(PIEventData &evt);
+    virtual void DoAction(PIEventData&);
     virtual void End();
 
     const std::string GetName() const { return name_; }
@@ -20,7 +20,7 @@ namespace PIAna
     /**
      * analyze
      */
-    virtual void analyze(const PIEventData &evt) = 0;
+    virtual void analyze(const PIEventData&) = 0;
     virtual void report() {}
 
   private:

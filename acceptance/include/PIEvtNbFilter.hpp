@@ -20,7 +20,7 @@ namespace PIAna
     void load_filter(const std::string &);
 
   protected:
-    bool get_bit(const PIEventData &evt) override;
+    bool filter(const PIEventData&) override;
 
     struct select_event_id {
       struct event_info {

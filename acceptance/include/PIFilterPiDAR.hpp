@@ -17,7 +17,7 @@ namespace PIAna
     void ke_threshold(const double thres) { ke_threshold_ = thres; }
 
   protected:
-    bool get_bit(const PIEventData &evt) override;
+    bool filter(const PIEventData&) override;
 
   private:
     double ke_threshold_;

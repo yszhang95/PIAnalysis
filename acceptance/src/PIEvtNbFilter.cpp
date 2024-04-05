@@ -33,9 +33,9 @@ void PIAna::PIEvtNbFilter::End()
   PIEventFilter::End();
 }
 
-bool PIAna::PIEvtNbFilter::get_bit(const PIEventData& evt)
+bool PIAna::PIEvtNbFilter::filter(const PIEventData& event)
 {
-  const PIMCInfo* info = evt.Get<const PIMCInfo*>("info");
+  const PIMCInfo* info = event.Get<const PIMCInfo*>("info");
   return selector_(info->GetRun(), info->GetEvent(), info->GetEventID());
 }
 

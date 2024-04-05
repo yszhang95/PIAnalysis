@@ -18,17 +18,17 @@ void PIAna::PIEventFilter::Begin()
   }
 }
 
-void PIAna::PIEventFilter::DoAction(PIEventData& evt)
+void PIAna::PIEventFilter::DoAction(PIEventData& event)
 {
   if (!PIEventAction::initialized_) {
     std::string msg = "Event filter " + name_ + " is not initialized.\n";
     Error("PIAna::PIEventFilter::DoAction", msg.c_str());
   }
 
-  const bool result = get_bit(evt);
-  evt.Put<bool>(name_, result);
+  const bool result = filter(event);
+  event.Put<bool>(name_, result);
   std::string codename = name_ + "_code";
-  evt.Put<int>(codename, code_);
+  event.Put<int>(codename, code_);
   return;
 }
 

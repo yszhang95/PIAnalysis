@@ -11,7 +11,7 @@ namespace PIAna
     virtual ~PIEventFilter();
 
     virtual void Begin();
-    virtual void DoAction(PIEventData &evt);
+    virtual void DoAction(PIEventData&);
     virtual void End();
 
     int GetCode() const { return code_; }
@@ -23,7 +23,7 @@ namespace PIAna
     /**
      * @return true if pass the selection.
      */
-    virtual bool get_bit(const PIEventData &evt) = 0;
+    virtual bool filter(const PIEventData&) = 0;
     virtual void report() {}
 
   private:
