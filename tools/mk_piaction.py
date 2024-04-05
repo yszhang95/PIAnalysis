@@ -30,10 +30,8 @@ incdir = topdir + "/include"
 srcdir = topdir + "/src"
 headerfile = incdir + "/{}.hpp".format(args.name)
 sourcefile = srcdir + "/{}.cpp".format(args.name)
-relheader = "{dirtop}/include/{name}.hpp".format(
-    dirtop=args.dirpath.rstrip("/"), name=args.name)
-relsource = "{dirtop}/src/{name}.cpp".format(
-    dirtop=args.dirpath.rstrip("/"), name=args.name)
+relheader = headerfile[len(rootdir)+1:]
+relsource = sourcefile[len(rootdir)+1:]
 timenow = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
@@ -128,6 +126,7 @@ namespace PIAna
         sys.exit("{} exists! Did not do anything this time.".format(headerfile))
     with open(headerfile, 'w') as f:
         f.write(headercontent)
+        print("Generated {}".format(headerfile))
 
 
 def generate_source():
@@ -246,6 +245,7 @@ void PIAna::{name}::report()
         sys.exit("{} exists! Did not do anything this time.".format(sourcefile))
     with open(sourcefile, 'w') as f:
         f.write(sourcecontent)
+        print("Generated {}".format(sourcefile))
 
 
 def generate_files():

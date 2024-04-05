@@ -36,3 +36,11 @@ Then do
 cd acceptance/test
 root -b -q test_job.C
 ```
+
+### Generate a set of user-defined actions
+```shell
+# assume we are on the top of git repository
+./tools/mk_piaction.py --dir acceptance --type analyzer PITestAnalyzer
+# acceptance/include/PITestAnalyzer.hpp generated
+# acceptance/src/PITestAnalyzer.cpp generated
+```
