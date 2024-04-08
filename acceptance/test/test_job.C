@@ -3,6 +3,7 @@
 R__LOAD_LIBRARY(../../../PIAnalysis_install/lib/libPiAnaAcc.so)
 R__LOAD_LIBRARY(../../../PIAnalysis_install/lib/libPiRootDict.so)
 #else
+#include "PITrueDecPos.hpp"
 #include "PIEvtNbFilter.hpp"
 #include "PIAnaConst.hpp"
 #include "PIFilterPiDAR.hpp"
@@ -24,8 +25,11 @@ void run_test_pienu()
   pi.add_action("EvtNb", std::move(evtnbfilter));
   auto evtnbfilterptr = dynamic_cast<PIAna::PIEvtNbFilter*>(pi.get_action("EvtNb"));
   evtnbfilterptr->load_filter("0:9599:9599");
-  // pi.add_action("PiDAR", std::make_unique<PIAna::PIPiDARFilter>(
-                             // "PiDAR", static_cast<int>(PIAna::EvtCode::PiDAR)));
+  pi.add_action("PiDAR",
+                std::make_unique<PIAna::PIPiDARFilter>("PiDAR", static_cast<int>(PIAna::EvtCode::PiDAR)));
+  pi.add_action("DecPos", std::make_unique<PIAna::PITrueDecPos>("DecPos"));
+  auto decpos = dynamic_cast<PIAna::PITrueDecPos *>(pi.get_action("DecPos"));
+  decpos->verbose(true);
   pi.add_action("RecHits", std::make_unique<PIAna::PIHitProducer>("RecHits"));
   auto rechits = dynamic_cast<PIAna::PIHitProducer *>(pi.get_action("RecHits"));
   rechits->verbose(true);

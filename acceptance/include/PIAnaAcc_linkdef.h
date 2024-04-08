@@ -42,6 +42,9 @@
 #pragma link C++ class PIAna::PIEvtNbFilter+;
 #pragma link C++ class PIAna::PIHitProducer+;
 #pragma link C++ class PIAna::PIEventAnalyzer+;
+#pragma link C++ class PIAna::PITrueDecPos+;
+#pragma link C++ class PIAna::XYZPointWrapper+;
+/* #pragma link C++ class PIAna::PointWrapper<ROOT::Math::XYZPoint>+; */
 #pragma link C++ nestedclass;
 // #pragma link C++ nestedfunction;
 #pragma link C++ nestedtypedef;

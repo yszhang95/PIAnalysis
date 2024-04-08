@@ -11,7 +11,7 @@
 #include <vector>
 
 PIAna::PIPiDARFilter::PIPiDARFilter(const std::string& name, const int code)
-  : PIEventFilter(name, code), ke_threshold_(0)
+  : PIEventFilter(name, code), ke_threshold_(1E-3)
 {}
 
 PIAna::PIPiDARFilter::~PIPiDARFilter()
