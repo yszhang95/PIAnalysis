@@ -43,7 +43,6 @@ public:
   void g4_step_limit(const double g4_step_limit)
   { this->g4_step_limit_ = g4_step_limit; }
 
-  ClassDef(PIAnaG4StepDivider, 1)
 private:
   double step_limit_;
   double g4_step_limit_;
@@ -52,19 +51,22 @@ private:
 class PIAnaHitMerger
 {
 public:
-  PIAnaHitMerger() {}
-  PIAnaHitMerger(double const dt_min) : dt_min_(dt_min) {}
+  PIAnaHitMerger() : PIAnaHitMerger(1, 0) {}
+  PIAnaHitMerger(const double dt_min, const double thres)
+    : dt_min_(dt_min), de_thres_(thres) {}
   double const dt_min() const { return dt_min_; }
   void dt_min(double const dt_min) { this->dt_min_ = dt_min; }
-  bool merge(PIAnaHit const&, PIAnaHit const&);
+  double const de_thres() const { return de_thres_; }
+  void de_thres(double thres) { de_thres_ = thres; }
+  bool merge(PIAnaHit const &, PIAnaHit const &);
 
   std::vector<PIAnaHit> merge(std::vector<PIAnaHit>);
 
-  ClassDef(PIAnaHitMerger, 1)
-
 private:
+  bool keep(const PIAnaHit& hit) const;
   // void merge(PIAnaHit&, PIAnaHit&);
   double dt_min_;
+  double de_thres_;
 };
 
 class PIAnaHit
@@ -144,7 +146,7 @@ public:
   static std::pair<int, double> find_layer(double const);
   static std::pair<int, double> find_strip(double const);
 
-  ClassDef(PIAnaHit, 1)
+  // ClassDef(PIAnaHit, 1)
 
 private:
   std::set<int> pdgids_;

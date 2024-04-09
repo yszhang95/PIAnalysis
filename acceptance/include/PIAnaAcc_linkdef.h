@@ -45,6 +45,7 @@
 #pragma link C++ class PIAna::PITrueDecPos+;
 #pragma link C++ class PIAna::XYZPointWrapper+;
 /* #pragma link C++ class PIAna::PointWrapper<ROOT::Math::XYZPoint>+; */
+#pragma link C++ class PIAna::PIAccAnalyzer+;
 #pragma link C++ nestedclass;
 // #pragma link C++ nestedfunction;
 #pragma link C++ nestedtypedef;

@@ -6,7 +6,8 @@
 #include "PIEventData.hpp"
 
 PIAna::PIHitProducer::PIHitProducer(const std::string &name)
-  : PIEventProducer(name), merge_hit_dtmin_(1), step_limit_(0.02), g4_step_limit_(60)
+    : PIEventProducer(name), merge_hit_dtmin_(1), step_limit_(0.02),
+      g4_step_limit_(60), de_thres_(0)
 {
   divider_ = std::make_unique<PIAnaG4StepDivider>();
   merger_ = std::make_unique<PIAnaHitMerger>();
@@ -20,6 +21,7 @@ void PIAna::PIHitProducer::Begin()
   divider_->step_limit(step_limit_);
   divider_->g4_step_limit(g4_step_limit_);
   merger_->dt_min(merge_hit_dtmin_);
+  merger_->de_thres(de_thres_);
 
   if (verbose_) {
     report();

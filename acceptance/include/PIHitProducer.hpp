@@ -39,6 +39,9 @@ namespace PIAna
     void g4_step_limit(const double sl) { g4_step_limit_ = sl; }
     double g4_step_limit() const { return g4_step_limit_; }
 
+    void de_thres(const double thres) { de_thres_ = thres; }
+    double de_thres() const { return de_thres_; }
+
   protected:
     void produce(PIEventData &) override;
     void fill_dummy(PIEventData &) override;
@@ -51,6 +54,8 @@ namespace PIAna
     double merge_hit_dtmin_; // ns
     double step_limit_; // mm
     double g4_step_limit_; // mm
+
+    double de_thres_;
   };
 };
 #endif

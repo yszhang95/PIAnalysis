@@ -25,7 +25,7 @@ namespace PIAna
       isnull_ = false;
       return *this;
     }
-    bool null() { return isnull_; }
+    bool null() const { return isnull_; }
     const T &point() const { return p_; }
 
   private:

@@ -224,8 +224,9 @@ void PIAna::PITopoProducer::produce(PIEventData &event)
 }
 
 void PIAna::PITopoProducer::fill_dummy(PIAna::PIEventData &event) {
+  // hard code
   event.Put<ROOT::Math::XYZPoint>(::Form("%s_pivertex", PIEventProducer::GetName().c_str())
-                                  , {});
+                                  , {-1E9, -1E9, -1E9});
   event.Put<ROOT::Math::XYZPoint>(
       ::Form("%s_estart", PIEventProducer::GetName().c_str()), {});
   event.Put<ROOT::Math::Polar3DVector>(::Form("%s_edirection", PIEventProducer::GetName().c_str())
