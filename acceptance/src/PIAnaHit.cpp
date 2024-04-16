@@ -209,14 +209,30 @@ std::vector<PIAnaHit> PIAnaHitMerger::merge(std::vector<PIAnaHit> hits)
       }
     }
   }
+  for (auto &hit : hits) {
+    if (hit.valid()) {
+      if (!this->keep(hit)) {
+        // remove if not exceeding dE threshold after merging all hits
+        hit.valid(false);
+      }
+    }
+  }
   // https://stackoverflow.com/a/30616738
-  hits.erase(std::remove_if(hits.begin(), hits.end(),
-                            [](PIAnaHit const& hit) -> bool { return !hit.valid(); })
-             , hits.end());
+  hits.erase(
+      std::remove_if(hits.begin(), hits.end(),
+                     [](const PIAnaHit &hit) -> bool { return !hit.valid(); }),
+      hits.end());
+
   std::sort(std::begin(hits), std::end(hits),
             [](PIAnaHit const& h1, PIAnaHit const& h2)->bool { return h1.t() < h2.t(); });
   return hits;
 }
+
+bool PIAnaHitMerger::keep(const PIAnaHit &hit)const
+{
+  return hit.edep() > de_thres_;
+}
+
 
 std::pair<int, double> PIAnaHit::find_layer(double const z)
 {
@@ -270,6 +286,4 @@ std::pair<int, double> PIAnaHit::find_strip(double const loc)
 }
 
 
-ClassImp(PIAnaG4StepDivider)
-ClassImp(PIAnaHitMerger)
-ClassImp(PIAnaHit)
+// ClassImp(PIAnaHit)
