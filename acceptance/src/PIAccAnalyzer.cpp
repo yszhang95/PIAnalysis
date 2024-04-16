@@ -11,6 +11,7 @@
 #include "TH2D.h"
 #include "Math/Vector3D.h"
 #include "Math/Point3D.h"
+#include "TMath.h"
 
 #include "PIJobManager.hpp"
 #include "PIEventData.hpp"

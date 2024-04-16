@@ -1,4 +1,5 @@
 #include "TClonesArray.h"
+#include "TError.h"
 
 #include "PIHitProducer.hpp"
 #include "PIAnaEvtBase.hpp"
