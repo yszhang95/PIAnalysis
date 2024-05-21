@@ -30,7 +30,9 @@ namespace PIAna
 
     std::pair<bool, ROOT::Math::Polar3DVector>
     positron_direction(const std::vector<const PIAnaHit *> hits,
-                       const PIAnaPointCloud::Point pivertex, ROOT::Math::XYZPoint&);
+                       const PIAnaPointCloud::Point pivertex,
+                       ROOT::Math::XYZPoint &,
+                       std::vector<ROOT::Math::XYZPoint> &);
 
 
     /**
