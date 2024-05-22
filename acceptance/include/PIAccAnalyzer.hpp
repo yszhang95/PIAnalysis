@@ -29,13 +29,14 @@ namespace PIAna
     void DoAction(PIEventData&) override;
     void End() override;
 
-    // void e_topo_name(const std::string &n) { e_topo_name_ = n; }
     void pivertex_name(const std::string &n) { pivertex_name_ = n; }
     void estart_name(const std::string &n) { estart_name_ = n; }
+    void ehits_name(const std::string &n) { ehits_name_ = n; }
     void true_pivertex_name(const std::string &n) { true_pivertex_name_ = n; }
     void true_estart_name(const std::string &n) { true_estart_name_ = n; }
     void topoflag_name(const std::string &n) { topoflag_name_ = n; }
     void edirection_name(const std::string &n) { edirection_name_ = n; }
+    void etruemom_name(const std::string &n) { etruemom_name_ = n; }
 
   protected:
     void analyze(const PIEventData&) override;
@@ -51,11 +52,16 @@ namespace PIAna
     std::string true_estart_name_;
     std::string topoflag_name_;
     std::string edirection_name_;
+    std::string ehits_name_;
+    std::string etruemom_name_;
 
     TTree* t_;
     TH2D *h_pistop_rec_xy_;
     TH2D *h_pistop_rec_xy_5hits_;
     TH2D *h_e_rec_angle_;
+    TH2D *h_e_truemom_angle_;
+    TH2D *h_e_angle_diff_;
+    TH2D *h_e_angle_diff_p_;
     Float_t pi_x_;
     Float_t pi_y_;
     Float_t pi_z_;
@@ -70,6 +76,13 @@ namespace PIAna
     Float_t e_rec_z_;
     Float_t e_rec_theta_;
     Float_t e_rec_phi_;
+    Float_t e_px_;
+    Float_t e_py_;
+    Float_t e_pz_;
+    UChar_t e_rec_nhits_;
+    Float_t e_rec_xs_[5];
+    Float_t e_rec_ys_[5];
+    Float_t e_rec_zs_[5];
   };
 };
 #endif

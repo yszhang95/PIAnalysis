@@ -11,6 +11,7 @@
 #include "PIAnaEvtBase.hpp"
 #include "PIAnaHit.hpp"
 #include "PIEventData.hpp"
+#include <Math/GenVector/VectorUtil.h>
 
 PIAna::PITopoProducer::PITopoProducer(const std::string &name)
   : PIEventProducer(name), rec_hits_name_("RecHits"),
@@ -201,8 +202,9 @@ void PIAna::PITopoProducer::produce(PIEventData &event)
 
   // const auto posi_dir =
   //     positron_direction(txyz_connected_hits.at(lastptr).front(), pivertex);
+  std::vector<ROOT::Math::XYZPoint> ehits;
   ROOT::Math::XYZPoint estart;
-  const auto posi_dir = positron_direction(tclusters.at(lastptr), pivertex, estart);
+  const auto posi_dir = positron_direction(tclusters.at(lastptr), pivertex, estart, ehits);
   if (posi_dir.first) {
     if (hitbyz->xstrip() < 90 && hitbyz->xstrip() >= 10 &&
         hitbyz->ystrip() < 90 && hitbyz->ystrip() >= 10) {
@@ -222,6 +224,10 @@ void PIAna::PITopoProducer::produce(PIEventData &event)
   event.Put<
       std::map<const PIAnaHit *, std::vector<std::vector<const PIAnaHit *>>>>(
       PIEventProducer::GetName(), txyz_connected_hits);
+
+  event.Put<std::vector<ROOT::Math::XYZPoint>>(
+      ::Form("%s_ehits", PIEventProducer::GetName().c_str()),
+      ehits);
 }
 
 void PIAna::PITopoProducer::fill_dummy(PIAna::PIEventData &event) {
@@ -236,6 +242,10 @@ void PIAna::PITopoProducer::fill_dummy(PIAna::PIEventData &event) {
       std::map<const PIAnaHit *, std::vector<std::vector<const PIAnaHit *>>>>(
       PIEventProducer::GetName(), {});
   event.Put<bool>(::Form("%s_flag", PIEventProducer::GetName().c_str()), false);
+
+  event.Put<std::vector<ROOT::Math::XYZPoint>>(
+      ::Form("%s_ehits", PIEventProducer::GetName().c_str()),
+      {});
 }
 
 std::vector<std::pair<const PIAnaHit *, const PIAnaHit *>>
@@ -248,7 +258,8 @@ PIAna::PITopoProducer::decay_point(const std::vector<const PIAnaHit *> &,
 std::pair<bool, ROOT::Math::Polar3DVector>
 PIAna::PITopoProducer::positron_direction(
     const std::vector<const PIAnaHit *> hits,
-    const PIAnaPointCloud::Point pivertex, ROOT::Math::XYZPoint& estart)
+    const PIAnaPointCloud::Point pivertex, ROOT::Math::XYZPoint &estart,
+    std::vector<ROOT::Math::XYZPoint> &ehits)
     {
 
   if (hits.size() < 5) {
@@ -311,6 +322,26 @@ PIAna::PITopoProducer::positron_direction(
   }
   pca.fit();
 
+  for (unsigned int i = 0; i != indices2.size(); ++i) {
+    const auto hit = xyzgraph.get_hit(indices2.at(i));
+    ehits.emplace_back(hit->rec_x(), hit->rec_y(), hit->rec_z());
+  }
+
   const auto iter2_dire = pca.get_direction();
-  return {true, iter2_dire};
+  // justify new direction
+  ROOT::Math::XYZVector n =
+      ROOT::Math::XYZPoint{xyzgraph.get_hit(indices2.back())->rec_x(),
+                           xyzgraph.get_hit(indices2.back())->rec_y(),
+                           xyzgraph.get_hit(indices2.back())->rec_z()} -
+      estart;
+  ROOT::Math::Polar3DVector ret;
+  if (n.Dot(iter2_dire) < 0) {
+    const double theta = TMath::Pi() - iter2_dire.Theta();
+    const double phi = ROOT::Math::VectorUtil::Phi_mpi_pi(iter2_dire.Phi() + TMath::Pi());
+    ret.SetCoordinates(1,
+                       theta, phi);
+  } else {
+    ret.SetCoordinates(1, iter2_dire.Theta(), iter2_dire.Phi());
+  }
+  return {true, ret};
 }
