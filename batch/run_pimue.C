@@ -45,6 +45,7 @@ void run_pimue(std::string inputfile)
   accana->pivertex_name("Topo_pivertex");
   accana->estart_name("Topo_estart");
   accana->edirection_name("Topo_edirection");
+  accana->ehits_name("Topo_ehits");
   accana->true_pivertex_name("DecPos_pivertex");
   accana->true_estart_name("DecPos_estart");
   accana->etruemom_name("TrueEMom_emom");

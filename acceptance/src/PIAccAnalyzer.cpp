@@ -72,7 +72,7 @@ void PIAna::PIAccAnalyzer::Begin()
 
   h_pistop_rec_xy_ = new TH2D(
       "h_pistop_rec_xy", "#pi^{+} stop position in reco level;x (mm); y (mm);",
-      100, -1, 1, 100, -1, 1);
+      100, -10, 10, 100, -10, 10);
   h_pistop_rec_xy_->SetDirectory(PIEventAnalyzer::outputfile_);
   h_pistop_rec_xy_5hits_ =
       new TH2D("h_pistop_rec_xy_5hits",
