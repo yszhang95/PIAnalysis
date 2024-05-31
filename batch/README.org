@@ -1,0 +1,14 @@
+* README
+** HOWTO
+Do serveral things in sequence.
+1. [[Compile]].
+2. [[Submit]].
+*** Compile
+Run
+#+begin_src shell
+./compile_in_container.sh
+#+end_src
+To know more:
+: ./compile_in_container.sh -h
+Paths to container, framework and commit/branch which one wants to tar are configurable.
+*** Submit
