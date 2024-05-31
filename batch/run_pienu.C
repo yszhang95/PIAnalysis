@@ -10,6 +10,7 @@ R__LOAD_LIBRARY(libPiRootDict.so)
 #include "PIFilterPiDAR.hpp"
 #include "PIHitProducer.hpp"
 #include "PITopoProducer.hpp"
+#include "PITrueMomProducer.hpp"
 #include "PIJobManager.hpp"
 #include "PITreeAnalyzer.hpp"
 #include "PIAccAnalyzer.hpp"
@@ -28,6 +29,9 @@ void run_pienu(std::string inputfile)
                 std::make_unique<PIAna::PIPiDARFilter>("PiDAR", static_cast<int>(PIAna::EvtCode::PiDAR)));
   pi.add_action("DecPos", std::make_unique<PIAna::PITrueDecPos>("DecPos"));
   auto decpos = dynamic_cast<PIAna::PITrueDecPos *>(pi.get_action("DecPos"));
+  pi.add_action("TrueEMom", std::make_unique<PIAna::PITrueMomProducer>("TrueEMom"));
+  auto emom = dynamic_cast<PIAna::PITrueMomProducer *>(pi.get_action("TrueEMom"));
+  emom->decay_mode(PIAna::PITrueMomProducer::PiDecayMode::pienu);
   pi.add_action("RecHits", std::make_unique<PIAna::PIHitProducer>("RecHits"));
   auto rechits = dynamic_cast<PIAna::PIHitProducer *>(pi.get_action("RecHits"));
   rechits->de_thres(0.0155);
@@ -43,6 +47,7 @@ void run_pienu(std::string inputfile)
   accana->edirection_name("Topo_edirection");
   accana->true_pivertex_name("DecPos_pivertex");
   accana->true_estart_name("DecPos_estart");
+  accana->etruemom_name("TrueEMom_emom");
   pi.begin();
   pi.run();
   pi.end();
