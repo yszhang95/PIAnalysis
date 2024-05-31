@@ -38,6 +38,7 @@ required_file_path=${18}    # path to the required files directory, copy everyth
 setup_options=${19} #options to pass the setup script, default -ra
 input_root_file_path=${20}    # path to the input root file directory, copy the file matching the SGE task id from this directory
 do_simulation=${21}    # whether to run G4Pioneer or whether to just proceed with running the post-processing (i.e. if we're reprocessing already make simulation files)
+other_args=${@:22}
 
 queue_dir="/data/eliza5/PIONEER/queue/" # hack for a queue system, make sure we don't have 500 read writes at the same time
 datestring=$(date +%Y_%m_%d_%H_%M_%S_%N)

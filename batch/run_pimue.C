@@ -14,12 +14,15 @@ R__LOAD_LIBRARY(libPiRootDict.so)
 #include "PIAccAnalyzer.hpp"
 #endif
 
+TString get_hash_input(const std::string& inputfile);
+
 void run_pimue(std::string inputfile)
 {
   PIAna::PIJobManager pi;
   pi.treename("sim");
   pi.add_file(inputfile);
-  pi.out_file("pimue-job-output.root");
+  TString hash = get_hash_input(inputfile);
+  pi.out_file(::Form("pimue_job_output_%s.root", hash.Data()));
   pi.add_action("PiDAR",
                 std::make_unique<PIAna::PIPiDARFilter>("PiDAR", static_cast<int>(PIAna::EvtCode::PiDAR)));
   pi.add_action("DecPos", std::make_unique<PIAna::PITrueDecPos>("DecPos"));
@@ -42,4 +45,10 @@ void run_pimue(std::string inputfile)
   pi.begin();
   pi.run();
   pi.end();
+}
+
+TString get_hash_input(const std::string& inputfile)
+{
+  auto s = gSystem->GetFromPipe(::Form("md5sum %s", inputfile.c_str()));
+  return s(0, 32);
 }

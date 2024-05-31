@@ -30,6 +30,16 @@ import time
 import random
 import subprocess
 
+# https://stackoverflow.com/a/43357954
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def copy_file_to_outpath(infile, path, istest):
     '''
@@ -80,13 +90,13 @@ def main():
     parser.add_argument("--full-output", type=bool, default=False)
     parser.add_argument("--post-process-script", type=str, default='', 
                         help='Path to a bash script to be run on the output root file')
-    parser.add_argument("--pass-directory-to-script", type=bool, default=True)
+    parser.add_argument("--pass-directory-to-script", type=str2bool, default=True)
     parser.add_argument("--delete-root-files", help='Remove the root files after post-processing', action='store_true')
     parser.add_argument("--required-files", default='', nargs='+')
     parser.add_argument("--setup-options", required=False, type=str, default='ra')
     parser.add_argument("--input-files", required=False, type=str, default=None)
     parser.add_argument("--exclude-root", required=False, type=bool, default=False)
-    parser.add_argument("--do-simulation", required=False, type=bool, default=True)
+    parser.add_argument("--do-simulation", required=False, type=str2bool, default=True)
 
     ding = parser.parse_args(sys.argv[1:])
 
@@ -121,9 +131,12 @@ def main():
     jobstring += str(ding.nevents) + " "
 
     # process the .mac file
+    mac_file = "nomac"
     if (ding.macfile is None):
-        if not ding.do_simulation: # if we're only doing post-processing, we don't need the mac file
-            raise NotImplementedError
+        # if not ding.do_simulation: # if we're only doing post-processing, we don't need the mac file
+        #     raise NotImplementedError
+        if ding.do_simulation:
+            raise ValueError("ERROR: --do-simulation must be false when no mac file is given")
         jobstring += f' NULL NULL '
     else:
         mac_file = os.path.basename(ding.macfile)

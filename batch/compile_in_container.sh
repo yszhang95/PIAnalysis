@@ -58,7 +58,7 @@ cd ${OldDir}
 
 # prepare compiling script
 DockerPIAnaSrc="/tmp/PIAnalysis_src"
-DockerPIAnaSrcTaget="/simulation/PIAnalysis_src"
+DockerPIAnaSrcTarget="/simulation/PIAnalysis_src"
 
 cat > tmp.sh << EOF
 echo "Setting up environment variables"
@@ -74,13 +74,13 @@ echo
 echo "Compiling PIAnalysis"
 
 
-rm -rf ${DockerPIAnaSrcTaget} && mkdir -p ${DockerPIAnaSrcTaget}
-mv ${DockerPIAnaSrc}/* ${DockerPIAnaSrcTaget}
-ls -lst ${DockerPIAnaSrcTaget}
+rm -rf ${DockerPIAnaSrcTarget} && mkdir -p ${DockerPIAnaSrcTarget}
+mv ${DockerPIAnaSrc}/* ${DockerPIAnaSrcTarget}
+ls -lst ${DockerPIAnaSrcTarget}
 
 BuildDir=/tmp/PIAnalysis_build
 mkdir /tmp/PIAnalysis_build && cd /tmp/PIAnalysis_build
-cmake ${DockerPIAnaSrcTaget} \
+cmake ${DockerPIAnaSrcTarget} \
   -DCMAKE_INSTALL_PREFIX=\${PIONEERSYS}/install \
   -DUSE_PIONEER_DOCKER=1
 make
