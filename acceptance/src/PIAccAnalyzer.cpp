@@ -59,6 +59,9 @@ void PIAna::PIAccAnalyzer::Begin()
   t_->Branch("e_x", &e_x_);
   t_->Branch("e_y", &e_y_);
   t_->Branch("e_z", &e_z_);
+  t_->Branch("e_pt", &e_pt_);
+  t_->Branch("e_theta", &e_theta_);
+  t_->Branch("e_phi", &e_phi_);
   t_->Branch("e_rec_x", &e_rec_x_);
   t_->Branch("e_rec_y", &e_rec_y_);
   t_->Branch("e_rec_z", &e_rec_z_);
@@ -154,6 +157,9 @@ void PIAna::PIAccAnalyzer::analyze(const PIEventData& event)
   e_x_ = true_estart.point().X();
   e_y_ = true_estart.point().Y();
   e_z_ = true_estart.point().Z();
+  e_pt_ = etruemom.Rho();
+  e_theta_ = etruemom.Theta();
+  e_phi_ = etruemom.Phi();
   e_rec_x_ = estart.X();
   e_rec_y_ = estart.Y();
   e_rec_z_ = estart.Z();
@@ -234,6 +240,9 @@ void PIAna::PIAccAnalyzer::clear()
     e_x_ = -1E9;
     e_y_ = -1E9;
     e_z_ = -1E9;
+    e_pt_ = -1E9;
+    e_theta_ = -1E9;
+    e_phi_ = -1E9;
     e_rec_x_ = -1E9;
     e_rec_y_ = -1E9;
     e_rec_z_ = -1E9;

@@ -71,6 +71,9 @@ namespace PIAna
     Float_t e_x_;
     Float_t e_y_;
     Float_t e_z_;
+    Float_t e_pt_;
+    Float_t e_theta_;
+    Float_t e_phi_;
     Float_t e_rec_x_;
     Float_t e_rec_y_;
     Float_t e_rec_z_;
