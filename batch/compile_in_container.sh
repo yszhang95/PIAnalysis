@@ -1,7 +1,7 @@
 #!/bin/bash
-usage() { echo "Usage: $0 [-c <container-path>] [-f <framework-path>] [-t <commit-or-branch>]" 1>&2; exit 0; }
+usage() { echo "Usage: $0 [-c <container-path>] [-p <framework-path>] [-t <commit-or-branch>] [-f]" 1>&2; exit 0; }
 
-while getopts "hc::f::t::" opt; do
+while getopts "hc::p::t::f" opt; do
     case "$opt" in
         h)
             usage
@@ -9,11 +9,14 @@ while getopts "hc::f::t::" opt; do
         c)
             ContainerPath=${OPTARG}
             ;;
-        f)
+        p)
             FrameworkPath=${OPTARG}
             ;;
         t)
             CommitPoint=${OPTARG}
+            ;;
+        f) 
+            force=1
             ;;
     esac
 done
@@ -37,8 +40,6 @@ echo
 if [ "${CommitPoint}" = "" ]; then
     CommitPoint="main"
 fi
-echo "To tar files under commit/branch ${CommitPoint}"
-echo
 
 # prepare tar
 OldDir=$(pwd)
@@ -52,9 +53,21 @@ mkdir $PIAnaSrcDir
 # https://stackoverflow.com/a/27452248
 #git -C "$(git rev-parse --show-toplevel)" archive --format=tar -o ${TarStr} --prefix=${PIAnaSrcDir} ${CommitPoint}
 cd $GitTopDir
-git archive --format=tar -o ${TarStr} ${CommitPoint}
+if [[ "$force" -eq 1 ]]; then
+    echo "To tar files under path ${PWD}"
+    tar -cvf ${TarStr} --exclude-vcs \
+        --exclude="*.root" --exclude="*.o" --exclude="*.so" \
+        --exclude="*.rootmap" --exclude="*.pcm" \
+        --exclude="*__pycache__" --exclude="*venv*" \
+        --exclude="PIAnalysis*.tar" \
+        .
+else
+    echo "To tar files under commit/branch ${CommitPoint}"
+    git archive -v --format=tar -o ${TarStr} ${CommitPoint}
+fi
 mv $TarStr ${PIAnaSrcDir} && cd ${PIAnaSrcDir} && tar xf ${PIAnaSrcDir}/${TarStr}
 cd ${OldDir}
+echo
 
 # prepare compiling script
 DockerPIAnaSrc="/tmp/PIAnalysis_src"

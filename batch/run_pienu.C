@@ -3,6 +3,7 @@ R__LOAD_LIBRARY(libPiAnaAcc.so)
 R__LOAD_LIBRARY(libPiRootDict.so)
 #else
 #include "Rtypes.h"
+#include "TError.h"
 #include "TSystem.h"
 #include "PITrueDecPos.hpp"
 #include "PIEvtNbFilter.hpp"
@@ -16,13 +17,17 @@ R__LOAD_LIBRARY(libPiRootDict.so)
 #include "PIAccAnalyzer.hpp"
 #endif
 
-TString get_hash_input(const std::string& inputfile);
+#include "utils.C"
 
 void run_pienu(std::string inputfile)
 {
+  gErrorIgnoreLevel = kFatal;
   PIAna::PIJobManager pi;
   pi.treename("sim");
-  pi.add_file(inputfile);
+  const auto filenames = load_filenames(inputfile, true);
+  for (const auto& f : filenames) {
+    pi.add_file(f);
+  }
   TString hash = get_hash_input(inputfile);
   pi.out_file(::Form("pienu_job_output_%s.root", hash.Data()));
   pi.add_action("PiDAR",
@@ -58,8 +63,3 @@ void run_pienu(std::string inputfile)
   pi.end();
 }
 
-TString get_hash_input(const std::string& inputfile)
-{
-  auto s = gSystem->GetFromPipe(::Form("md5sum %s", inputfile.c_str()));
-  return s(0, 32);
-}

@@ -1,5 +1,5 @@
 #!/bin/bash
-njobs=10
+njobs=150
 
 python3 submit_TargetSim.py \
         --outpath /data/eliza5/PIONEER/yousen/pimue_atar_only_doubleside_analysis/ \
